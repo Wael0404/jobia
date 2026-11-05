@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata: { name: jobia-web, namespace: jobia }
+spec:
+  replicas: 3
+  selector: { matchLabels: { app: jobia-web } }
+  template:
+    metadata: { labels: { app: jobia-web } }
+    spec:
+      containers:
+        - name: web
+          image: ghcr.io/jobia/web:latest
+          ports: [{ containerPort: 3000 }]
+          resources: { requests: { cpu: 200m, memory: 256Mi }, limits: { memory: 512Mi } }
+          readinessProbe: { httpGet: { path: /, port: 3000 } }
+---
+apiVersion: v1
+kind: Service
+metadata: { name: jobia-web, namespace: jobia }
+spec:
+  selector: { app: jobia-web }
+  ports: [{ port: 80, targetPort: 3000 }]
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: jobia
+  namespace: jobia
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt
+spec:
+  ingressClassName: nginx
+  tls: [{ hosts: [app.jobia.tn, api.jobia.tn], secretName: jobia-tls }]
+  rules:
+    - host: api.jobia.tn
+      http: { paths: [{ path: /, pathType: Prefix, backend: { service: { name: jobia-api, port: { number: 80 } } } }] }
+    - host: app.jobia.tn
+      http: { paths: [{ path: /, pathType: Prefix, backend: { service: { name: jobia-web, port: { number: 80 } } } }] }

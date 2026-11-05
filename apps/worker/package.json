@@ -1,0 +1,38 @@
+{
+  "name": "@jobia/worker",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch --env-file=../../.env src/main.ts",
+    "build": "tsup",
+    "start": "node dist/main.js",
+    "smoke": "tsx --env-file=../../.env scripts/smoke-connector.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^1.6.0",
+    "@aws-sdk/client-s3": "^3.1162.0",
+    "@googleapis/gmail": "^22.0.2",
+    "@jobia/ai": "workspace:*",
+    "@jobia/connectors": "workspace:*",
+    "@jobia/db": "workspace:*",
+    "@jobia/queue": "workspace:*",
+    "@jobia/security": "workspace:*",
+    "@jobia/shared": "workspace:*",
+    "bullmq": "^5.81.5",
+    "drizzle-orm": "^0.45.4",
+    "google-auth-library": "^11.3.3",
+    "ioredis": "^5.11.1",
+    "mammoth": "^1.13.0",
+    "pg": "^8.23.1",
+    "pino": "^10.4.0",
+    "playwright": "^1.64.1",
+    "zod": "^4.1.0"
+  },
+  "devDependencies": {
+    "tsup": "^8.5.0",
+    "tsx": "^4.23.15"
+  }
+}

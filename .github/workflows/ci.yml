@@ -1,0 +1,32 @@
+name: CI
+
+on:
+  push: { branches: [main] }
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env: { POSTGRES_USER: jobia, POSTGRES_PASSWORD: jobia, POSTGRES_DB: jobia }
+        ports: ["5432:5432"]
+        options: --health-cmd "pg_isready -U jobia" --health-interval 5s
+      redis:
+        image: redis:7-alpine
+        ports: ["6379:6379"]
+    env:
+      DATABASE_URL: postgres://jobia:jobia@localhost:5432/jobia
+      REDIS_URL: redis://localhost:6379
+      INTEGRATION: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm typecheck
+      - run: pnpm db:migrate
+      - run: pnpm test
+      - run: pnpm --filter @jobia/api --filter @jobia/worker --filter @jobia/web build

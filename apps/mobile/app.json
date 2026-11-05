@@ -1,0 +1,15 @@
+{
+  "expo": {
+    "name": "Jobia",
+    "slug": "jobia",
+    "scheme": "jobia",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "ios": { "bundleIdentifier": "tn.jobia.app", "supportsTablet": true },
+    "android": { "package": "tn.jobia.app" },
+    "plugins": ["expo-router", "expo-secure-store", "expo-web-browser"],
+    "experiments": { "typedRoutes": false },
+    "extra": { "apiUrl": "https://api.jobia.tn" }
+  }
+}

@@ -1,0 +1,64 @@
+# Two worker pools with different hardware profiles, autoscaled by KEDA on
+# the BullMQ waiting-list length (key `bull:<queue>:wait`).
+apiVersion: apps/v1
+kind: Deployment
+metadata: { name: jobia-worker-ai, namespace: jobia }
+spec:
+  selector: { matchLabels: { app: jobia-worker-ai } }
+  template:
+    metadata: { labels: { app: jobia-worker-ai } }
+    spec:
+      terminationGracePeriodSeconds: 120
+      containers:
+        - name: worker
+          image: ghcr.io/jobia/worker:latest
+          envFrom: [{ secretRef: { name: jobia-secrets } }, { configMapRef: { name: jobia-config } }]
+          env:
+            - { name: WORKER_QUEUES, value: "cv.parse,match,inbox.sync,scheduler" }
+            - { name: LLM_CONCURRENCY, value: "25" }
+          resources: { requests: { cpu: 250m, memory: 384Mi }, limits: { memory: 1Gi } }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: { name: jobia-worker-browser, namespace: jobia }
+spec:
+  selector: { matchLabels: { app: jobia-worker-browser } }
+  template:
+    metadata: { labels: { app: jobia-worker-browser } }
+    spec:
+      terminationGracePeriodSeconds: 300
+      containers:
+        - name: worker
+          image: ghcr.io/jobia/worker:latest
+          envFrom: [{ secretRef: { name: jobia-secrets } }, { configMapRef: { name: jobia-config } }]
+          env:
+            - { name: WORKER_QUEUES, value: "discovery,submit" }
+            - { name: BROWSER_CONCURRENCY, value: "3" }
+          resources: { requests: { cpu: "1", memory: 2Gi }, limits: { memory: 3Gi } }
+          volumeMounts: [{ name: dshm, mountPath: /dev/shm }]
+      volumes:
+        - { name: dshm, emptyDir: { medium: Memory, sizeLimit: 1Gi } }
+---
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata: { name: jobia-worker-ai, namespace: jobia }
+spec:
+  scaleTargetRef: { name: jobia-worker-ai }
+  minReplicaCount: 2
+  maxReplicaCount: 60
+  triggers:
+    - { type: redis, metadata: { addressFromEnv: REDIS_HOST_PORT, listName: "bull:match:wait", listLength: "200" } }
+    - { type: redis, metadata: { addressFromEnv: REDIS_HOST_PORT, listName: "bull:inbox.sync:wait", listLength: "2000" } }
+    - { type: redis, metadata: { addressFromEnv: REDIS_HOST_PORT, listName: "bull:cv.parse:wait", listLength: "50" } }
+---
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata: { name: jobia-worker-browser, namespace: jobia }
+spec:
+  scaleTargetRef: { name: jobia-worker-browser }
+  minReplicaCount: 2
+  maxReplicaCount: 200
+  cooldownPeriod: 600
+  triggers:
+    - { type: redis, metadata: { addressFromEnv: REDIS_HOST_PORT, listName: "bull:submit:wait", listLength: "30" } }
+    - { type: redis, metadata: { addressFromEnv: REDIS_HOST_PORT, listName: "bull:discovery:wait", listLength: "30" } }
