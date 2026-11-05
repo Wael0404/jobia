@@ -61,6 +61,11 @@ pnpm --filter @jobia/mobile start   # application mobile (Expo)
 Google Cloud Console → identifiants OAuth « Application Web » avec l'URI de redirection
 `http://localhost:4000/v1/auth/google/callback`, et l'API Gmail activée.
 
+## Déploiement
+
+Guide pas à pas pour un déploiement **gratuit** (Oracle Cloud Always Free + DuckDNS + HTTPS automatique) :
+[`docs/DEPLOY.md`](docs/DEPLOY.md) — une commande : `bash infra/deploy/deploy.sh`.
+
 ## Qualité
 
 ```bash

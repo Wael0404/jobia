@@ -18,7 +18,9 @@ const secureStore: TokenStore = {
   },
 };
 
-const apiUrl = (Constants.expoConfig?.extra?.apiUrl as string | undefined) ?? "http://localhost:4000";
+/** EXPO_PUBLIC_API_URL (set at build/start time) wins over app.json `extra.apiUrl`. */
+const apiUrl =
+  process.env.EXPO_PUBLIC_API_URL ?? (Constants.expoConfig?.extra?.apiUrl as string | undefined) ?? "http://localhost:4000";
 
 export const api = new JobiaClient(apiUrl, secureStore, () => router.replace("/"));
 export const hasSession = async () => Boolean(await secureStore.get());

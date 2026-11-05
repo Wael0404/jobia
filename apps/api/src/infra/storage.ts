@@ -7,25 +7,31 @@ import type { Config } from "../config";
  * storage with a short-lived presigned URL. This keeps API pods light.
  */
 export class CvStorage {
+  /** Server-side operations (HEAD) use the internal endpoint… */
   private readonly s3: S3Client;
+  /** …while presigned URLs must point to an endpoint the client device can reach. */
+  private readonly presigner: S3Client;
   private readonly bucket: string;
 
   constructor(config: Config) {
     this.bucket = config.S3_BUCKET;
-    this.s3 = new S3Client({
-      region: config.S3_REGION,
-      endpoint: config.S3_ENDPOINT,
-      forcePathStyle: Boolean(config.S3_ENDPOINT),
-      credentials:
-        config.S3_ACCESS_KEY_ID && config.S3_SECRET_ACCESS_KEY
-          ? { accessKeyId: config.S3_ACCESS_KEY_ID, secretAccessKey: config.S3_SECRET_ACCESS_KEY }
-          : undefined,
-    });
+    const client = (endpoint: string | undefined) =>
+      new S3Client({
+        region: config.S3_REGION,
+        endpoint,
+        forcePathStyle: Boolean(endpoint),
+        credentials:
+          config.S3_ACCESS_KEY_ID && config.S3_SECRET_ACCESS_KEY
+            ? { accessKeyId: config.S3_ACCESS_KEY_ID, secretAccessKey: config.S3_SECRET_ACCESS_KEY }
+            : undefined,
+      });
+    this.s3 = client(config.S3_ENDPOINT);
+    this.presigner = client(config.S3_PUBLIC_ENDPOINT ?? config.S3_ENDPOINT);
   }
 
   presignUpload(key: string, mimeType: string, sizeBytes: number): Promise<string> {
     return getSignedUrl(
-      this.s3,
+      this.presigner,
       new PutObjectCommand({
         Bucket: this.bucket,
         Key: key,

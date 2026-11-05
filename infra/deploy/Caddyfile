@@ -1,0 +1,29 @@
+{
+	email {$ACME_EMAIL}
+}
+
+{$DOMAIN} {
+	encode zstd gzip
+
+	# API
+	@api path /v1/* /health/*
+	reverse_proxy @api api:4000
+
+	# Presigned CV uploads. Caddy keeps the original Host header, which is
+	# part of the S3 signature, so MinIO validates URLs signed for {$DOMAIN}.
+	@cvs path /jobia-cvs/*
+	reverse_proxy @cvs minio:9000 {
+		flush_interval -1
+	}
+	request_body @cvs {
+		max_size 11MB
+	}
+
+	# Web dashboard
+	reverse_proxy web:3000
+
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		-Server
+	}
+}

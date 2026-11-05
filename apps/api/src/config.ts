@@ -10,6 +10,8 @@ const EnvSchema = z.object({
   REDIS_URL: z.string().url(),
 
   S3_ENDPOINT: z.string().url().optional(),
+  /** Endpoint reachable by browsers/phones for presigned uploads (defaults to S3_ENDPOINT). */
+  S3_PUBLIC_ENDPOINT: z.string().url().optional(),
   S3_REGION: z.string(),
   S3_BUCKET: z.string(),
   S3_ACCESS_KEY_ID: z.string().optional(),

@@ -14,7 +14,8 @@ COPY . .
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 RUN pnpm --filter @jobia/${APP} build \
  && pnpm --filter @jobia/${APP} deploy --prod --legacy /out \
- && cp -r apps/${APP}/dist /out/dist
+ && cp -r apps/${APP}/dist /out/dist \
+ && cp -r packages/db/drizzle /out/drizzle
 
 # ---- api: small distroless-like runtime ----
 FROM node:${NODE_VERSION}-bookworm-slim AS api
