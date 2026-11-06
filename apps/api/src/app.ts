@@ -28,7 +28,12 @@ export async function buildApp(container: Container): Promise<FastifyInstance> {
 
   app.setErrorHandler(errorHandler);
   await app.register(helmet);
-  await app.register(cors, { origin: [config.WEB_ORIGIN], credentials: false });
+  // @fastify/cors only allows GET/HEAD/POST by default: list every verb the clients use.
+  await app.register(cors, {
+    origin: [config.WEB_ORIGIN],
+    credentials: false,
+    methods: ["GET", "HEAD", "POST", "PUT", "PATCH", "DELETE"],
+  });
   await app.register(jwt, {
     secret: config.JWT_ACCESS_SECRET,
     sign: { expiresIn: config.JWT_ACCESS_TTL_SECONDS, iss: "jobia" },
