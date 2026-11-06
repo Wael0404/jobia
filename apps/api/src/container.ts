@@ -70,7 +70,7 @@ export function createContainer(config: Config): Container {
       applications: new ApplicationsService(db, queues.submit),
       reports: new ReportsService(db, redis),
       agent: new AgentService(db, redis, queues.discovery),
-      billing: new BillingService(db, redis, config.BILLING_MODE === "test"),
+      billing: new BillingService(db, config.BILLING_MODE === "test"),
     },
     async close() {
       await Promise.all(Object.values(queues).map((q) => q.close()));

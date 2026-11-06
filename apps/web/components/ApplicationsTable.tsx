@@ -25,13 +25,13 @@ export function ApplicationsTable({ items, actions = false }: { items: Applicati
 
   return (
     <>
-      <table>
+      <table className="responsive-table">
         <thead>
           <tr>
             <th>Poste</th>
-            <th className="hide-mobile">Source</th>
+            <th>Source</th>
             <th>Statut</th>
-            <th className="hide-mobile">Score</th>
+            <th>Score</th>
             <th>Date d&apos;envoi</th>
             {showActions && <th>Décision</th>}
           </tr>
@@ -41,16 +41,16 @@ export function ApplicationsTable({ items, actions = false }: { items: Applicati
             const busy = decide.isPending && decide.variables?.id === a.id;
             return (
               <tr key={a.id}>
-                <td>
+                <td className="cell-title">
                   <Link href={`/applications/${a.id}`}>{a.job.title}</Link>
                   <div className="muted">{a.job.company}</div>
                 </td>
-                <td className="hide-mobile">{a.source}</td>
-                <td>
+                <td data-label="Source">{a.source}</td>
+                <td data-label="Statut">
                   <StatusBadge status={a.status} />
                 </td>
-                <td className="hide-mobile">{a.matchScore}</td>
-                <td>
+                <td data-label="Score">{a.matchScore}</td>
+                <td data-label={"Date d'envoi"}>
                   {a.submittedAt ? (
                     <time dateTime={a.submittedAt} title={new Date(a.submittedAt).toLocaleString("fr-TN")}>
                       {dateFmt.format(new Date(a.submittedAt))}
@@ -60,7 +60,7 @@ export function ApplicationsTable({ items, actions = false }: { items: Applicati
                   )}
                 </td>
                 {showActions && (
-                  <td>
+                  <td className="cell-actions">
                     {a.status === "pending_review" && (
                       <div className="row" style={{ gap: 6, flexWrap: "nowrap" }}>
                         <a
@@ -70,7 +70,7 @@ export function ApplicationsTable({ items, actions = false }: { items: Applicati
                           rel="noreferrer noopener"
                           aria-label={`Voir l'offre ${a.job.title} (nouvel onglet)`}
                         >
-                          ↗<span className="hide-mobile">Voir</span>
+                          ↗<span>Voir</span>
                         </a>
                         <button
                           type="button"
@@ -79,7 +79,7 @@ export function ApplicationsTable({ items, actions = false }: { items: Applicati
                           onClick={() => decide.mutate({ id: a.id, approve: true })}
                           aria-label={`Valider ${a.job.title}`}
                         >
-                          ✓<span className="hide-mobile">Valider</span>
+                          ✓<span>Valider</span>
                         </button>
                         <button
                           type="button"
@@ -88,7 +88,7 @@ export function ApplicationsTable({ items, actions = false }: { items: Applicati
                           onClick={() => decide.mutate({ id: a.id, approve: false })}
                           aria-label={`Écarter ${a.job.title}`}
                         >
-                          ✕<span className="hide-mobile">Écarter</span>
+                          ✕<span>Écarter</span>
                         </button>
                       </div>
                     )}

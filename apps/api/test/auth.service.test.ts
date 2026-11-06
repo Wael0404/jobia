@@ -16,7 +16,7 @@ class FakeRedis {
   }
 }
 
-const config = { WEB_ORIGIN: "https://app.jobia.tn", MOBILE_REDIRECT_URI: "jobia://auth" } as Config;
+const config = { WEB_ORIGIN: ["https://app.jobia.tn"], MOBILE_REDIRECT_URI: "jobia://auth" } as Config;
 const google = {
   authorizationUrl: async (state: string) => ({ url: `https://accounts.google.com/o?state=${state}`, codeVerifier: "v" }),
 } as unknown as GoogleOAuth;

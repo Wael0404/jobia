@@ -379,7 +379,6 @@ input:focus, select:focus, textarea:focus { outline: none; border-color: var(--p
   .search-card .row { justify-content: center; }
   .nav { gap: 2px; }
   .nav-link { padding: 8px; font-size: 14px; }
-  .nav .brand span:last-child { display: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -534,3 +533,100 @@ input:focus, select:focus, textarea:focus { outline: none; border-color: var(--p
   .feed li { grid-template-columns: auto 1fr; }
   .feed time { grid-column: 2; }
 }
+
+/* =====================================================================
+   Logo, mobile navigation and responsive tables
+   ===================================================================== */
+.logo { display: inline-flex; align-items: center; gap: 9px; }
+.logo-mark { flex: none; border-radius: 11px; box-shadow: var(--shadow-glow); }
+.logo-word { font-weight: 800; font-size: 20px; letter-spacing: -.035em; color: var(--text); }
+.brand:hover .logo-mark { animation: logo-wiggle .6s var(--ease-spring); }
+.logo-mark .logo-antenna { animation: pulse 1.6s ease-in-out infinite alternate; }
+@keyframes logo-wiggle { 30% { transform: rotate(-8deg) scale(1.06); } 60% { transform: rotate(6deg); } }
+
+.nav-links { display: flex; align-items: center; gap: 4px; }
+.icon-btn { padding: 8px 12px; }
+
+/* Bottom tab bar: phones only */
+.tabbar { display: none; }
+
+@media (max-width: 760px) {
+  .nav { gap: 8px; padding-top: 8px; padding-bottom: 8px; }
+  .nav-links { display: none; }
+  .icon-btn { padding: 8px; }
+  .app-main { padding-bottom: calc(96px + env(safe-area-inset-bottom)); }
+  .tabbar {
+    position: fixed; z-index: 30; left: 10px; right: 10px; bottom: calc(10px + env(safe-area-inset-bottom));
+    display: grid; grid-template-columns: repeat(4, 1fr); padding: 6px; border-radius: 22px;
+    background: var(--bg-elevated); backdrop-filter: saturate(160%) blur(16px); -webkit-backdrop-filter: saturate(160%) blur(16px);
+    border: 1px solid var(--border); box-shadow: 0 12px 34px -14px rgba(15, 18, 34, .45);
+  }
+  .tab {
+    display: grid; justify-items: center; gap: 2px; padding: 7px 2px; border-radius: 16px; min-height: 52px;
+    font-size: 11px; font-weight: 600; color: var(--muted); transition: color .2s, background-color .25s;
+  }
+  .tab[aria-current="page"] { color: var(--primary); background: color-mix(in srgb, var(--primary) 12%, transparent); }
+  .tab[aria-current="page"] svg { animation: pop .45s var(--ease-spring); }
+  .container { padding-left: 14px; padding-right: 14px; }
+  h1 { font-size: 26px; }
+  .page-head h1, .row > h1 { font-size: 26px; }
+}
+
+/* Tables become stacked cards on narrow screens */
+@media (max-width: 760px) {
+  .responsive-table, .responsive-table tbody { display: block; }
+  .responsive-table thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .responsive-table tr {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 8px 12px; padding: 14px; margin-bottom: 10px;
+    border: 1px solid var(--border); border-radius: 14px; background: var(--surface);
+  }
+  .responsive-table tbody tr:hover { background: var(--surface); }
+  .responsive-table td { display: block; padding: 0; border: 0; min-width: 0; overflow-wrap: anywhere; }
+  .responsive-table td[data-label]::before {
+    content: attr(data-label); display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--muted);
+  }
+  .responsive-table .cell-title { grid-column: 1 / -1; font-weight: 600; }
+  .responsive-table .cell-actions { grid-column: 1 / -1; }
+  .responsive-table .cell-actions:empty { display: none; }
+  .responsive-table .cell-actions .row { display: grid !important; grid-template-columns: 1fr 1fr 1fr; }
+  .responsive-table .cell-actions .btn { width: 100%; padding: 9px 6px; }
+}
+
+/* Forms: fields share the row and fill it on small screens; checkbox stays next to its label */
+.row > input:not([type="checkbox"]):not([type="radio"]), .row > select { flex: 1 1 200px; min-width: 0; }
+label.row { flex-wrap: nowrap; align-items: flex-start; cursor: pointer; }
+label.row > input[type="checkbox"] { flex: none; margin-top: 4px; width: 18px; height: 18px; accent-color: var(--primary); }
+@media (max-width: 760px) {
+  .card:has(> .responsive-table) { padding: 10px; background: transparent; border-color: transparent; box-shadow: none; }
+}
+@media (max-width: 760px) {
+  .grid:has(> .stat-card) { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .stat-card { padding: 14px; }
+  .stat-card .stat { font-size: 26px; }
+  .stat-card .muted { font-size: 13px; line-height: 1.3; }
+  .stat-card .stat-icon { width: 32px; height: 32px; font-size: 15px; margin-bottom: 8px; }
+}
+
+/* Clickable stat cards */
+.stat-link { display: block; color: inherit; text-decoration: none; cursor: pointer; }
+.stat-link:hover { color: inherit; }
+.stat-link:active { transform: scale(.98); }
+.stat-arrow {
+  position: absolute; top: 14px; right: 14px; z-index: 1; width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center;
+  font-weight: 800; color: var(--tone, var(--primary)); background: color-mix(in srgb, var(--tone, var(--primary)) 14%, var(--surface));
+  opacity: .55; transform: translateX(-4px); transition: opacity .25s, transform .3s var(--ease-spring);
+}
+.stat-link:hover .stat-arrow, .stat-link:focus-visible .stat-arrow { opacity: 1; transform: none; }
+@media (hover: none) { .stat-arrow { opacity: .8; transform: none; } }
+
+/* In-page jumps: smooth, not hidden under the sticky header, briefly highlighted */
+html { scroll-behavior: smooth; }
+.target-section { scroll-margin-top: 84px; }
+.target-section:target { animation: target-flash 1.6s var(--ease-out); }
+@keyframes target-flash {
+  0%, 30% { box-shadow: 0 0 0 3px color-mix(in srgb, var(--warning) 70%, transparent), var(--shadow-md); }
+  100% { box-shadow: var(--shadow-sm); }
+}
+.target-section:target.on-scroll { opacity: 1; transform: none; }
+.back-link { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 600; color: var(--muted); }
+.back-link:hover { color: var(--primary); }

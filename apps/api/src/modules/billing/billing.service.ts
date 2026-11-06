@@ -1,14 +1,6 @@
-import { eq, users, type Database } from "@jobia/db";
+import { dailyUsage, eq, users, type Database } from "@jobia/db";
 import { PLANS, type BillingStatusDto, type PlanId } from "@jobia/shared";
-import type { Redis } from "ioredis";
 import { AppError, NotFound } from "../../http/errors";
-
-/** Redis keys shared with the worker, which increments them. */
-const today = (): string => new Date().toISOString().slice(0, 10);
-export const usageKeys = {
-  applications: (userId: string, day: string = today()) => `quota:${day}:${userId}`,
-  matches: (userId: string, day: string = today()) => `matches:${day}:${userId}`,
-};
 
 /**
  * Subscription plans. Payment is not integrated yet: in test mode a paid
@@ -17,7 +9,6 @@ export const usageKeys = {
 export class BillingService {
   constructor(
     private readonly db: Database,
-    private readonly redis: Redis,
     private readonly testMode: boolean,
   ) {}
 
@@ -28,12 +19,12 @@ export class BillingService {
       .where(eq(users.id, userId))
       .limit(1);
     if (!row) throw NotFound("User");
-    const [applications, matches] = await this.redis.mget(usageKeys.applications(userId), usageKeys.matches(userId));
     return {
       plan: row.plan,
       planSelected: row.planSelectedAt !== null,
       testMode: this.testMode,
-      usage: { applicationsToday: Math.max(0, Number(applications ?? 0)), matchesToday: Math.max(0, Number(matches ?? 0)) },
+      // Computed from the applications table, so it is always consistent with the dashboard.
+      usage: await dailyUsage(this.db, userId),
     };
   }
 

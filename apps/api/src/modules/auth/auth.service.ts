@@ -35,7 +35,7 @@ export class AuthService {
     private readonly google: GoogleOAuth,
     private readonly config: Config,
   ) {
-    this.allowedRedirects = new Set([`${config.WEB_ORIGIN}/auth/callback`, config.MOBILE_REDIRECT_URI]);
+    this.allowedRedirects = new Set([...config.WEB_ORIGIN.map((o) => `${o}/auth/callback`), config.MOBILE_REDIRECT_URI]);
   }
 
   async start(redirect: string): Promise<string> {

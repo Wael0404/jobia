@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, type CSSProperties } from "react";
+import { Logo } from "../components/Logo";
 import { RobotAgent } from "../components/RobotAgent";
 import { api, hasSession } from "../lib/api";
 
@@ -32,6 +33,17 @@ export default function LandingPage() {
 
   return (
     <>
+      <header className="nav">
+        <Link href="/" className="brand" aria-label="Jobia, accueil">
+          <Logo />
+        </Link>
+        <Link href="/pricing" className="nav-link">
+          Forfaits
+        </Link>
+        <button className="btn sm primary" onClick={signIn}>
+          Se connecter
+        </button>
+      </header>
       <main>
         <section className="hero">
           <div>

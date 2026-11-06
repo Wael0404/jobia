@@ -4,6 +4,7 @@ import { PLAN_IDS, PLANS, type BillingStatusDto, type PlanId } from "@jobia/shar
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState, type CSSProperties } from "react";
+import { Logo } from "../../components/Logo";
 import { PlanAdvisor } from "../../components/PlanAdvisor";
 import { api, hasSession } from "../../lib/api";
 
@@ -52,11 +53,8 @@ function Pricing() {
   return (
     <>
       <header className="nav">
-        <Link href={signedIn ? "/dashboard" : "/"} className="brand">
-          <span className="brand-mark" aria-hidden="true">
-            🤖
-          </span>
-          <span>Jobia</span>
+        <Link href={signedIn ? "/dashboard" : "/"} className="brand" aria-label="Jobia, accueil">
+          <Logo />
         </Link>
         {signedIn && !onboarding && (
           <Link href="/dashboard" className="nav-link">

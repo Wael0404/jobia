@@ -86,6 +86,8 @@ export interface IntegrationDto {
 
 export const ListApplicationsQuerySchema = z.object({
   status: z.enum(APPLICATION_STATUSES).optional(),
+  /** "sent" = every status in SENT_STATUSES (ignored when `status` is set). */
+  group: z.enum(["sent"]).optional(),
   source: z.enum(JOB_SOURCES).optional(),
   cursor: z.string().optional(),
   limit: z.coerce.number().int().min(1).max(100).default(25),

@@ -1,5 +1,6 @@
 "use client";
 
+import { SENT_STATUSES } from "@jobia/shared";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import type { CSSProperties } from "react";
@@ -23,13 +24,21 @@ export default function DashboardPage() {
   });
 
   const t = report.data?.totals;
-  const sent = t ? t.submitted + t.viewed + t.interview + t.offer + t.rejected : 0;
+  const sent = t ? SENT_STATUSES.reduce((sum, s) => sum + t[s], 0) : 0;
+  const hasProposals = (toReview.data?.items.length ?? 0) > 0;
 
+  // Each card opens the matching list: the proposals section on this page, or a filtered list.
   const stats = [
-    { label: "Candidatures envoyées", value: sent, icon: "🚀", tone: "var(--primary)" },
-    { label: "Entretiens", value: t?.interview ?? 0, icon: "📅", tone: "var(--success)" },
-    { label: "En attente de validation", value: t?.pending_review ?? 0, icon: "⏳", tone: "var(--warning)" },
-    { label: "Action requise", value: t?.needs_user_action ?? 0, icon: "⚠️", tone: "var(--danger)" },
+    { label: "Candidatures envoyées", value: sent, icon: "🚀", tone: "var(--primary)", href: "/applications?group=sent" },
+    { label: "Entretiens", value: t?.interview ?? 0, icon: "📅", tone: "var(--success)", href: "/applications?status=interview" },
+    {
+      label: "En attente de validation",
+      value: t?.pending_review ?? 0,
+      icon: "⏳",
+      tone: "var(--warning)",
+      href: hasProposals ? "#offres-proposees" : "/applications?status=pending_review",
+    },
+    { label: "Action requise", value: t?.needs_user_action ?? 0, icon: "⚠️", tone: "var(--danger)", href: "/applications?status=needs_user_action" },
   ];
 
   return (
@@ -47,13 +56,22 @@ export default function DashboardPage() {
 
       <div className="grid">
         {stats.map((s, i) => (
-          <div key={s.label} className="card lift stat-card reveal" style={{ "--i": i + 1, "--tone": s.tone } as CSSProperties}>
+          <Link
+            key={s.label}
+            href={s.href}
+            className="card lift stat-card stat-link reveal"
+            style={{ "--i": i + 1, "--tone": s.tone } as CSSProperties}
+            aria-label={`${s.label} : ${s.value}. Voir le détail`}
+          >
+            <span className="stat-arrow" aria-hidden="true">
+              →
+            </span>
             <div className="stat-icon" aria-hidden="true">
               {s.icon}
             </div>
             <div className="muted">{s.label}</div>
             <CountUp value={s.value} />
-          </div>
+          </Link>
         ))}
       </div>
 
@@ -83,8 +101,8 @@ export default function DashboardPage() {
       )}
 
       {toReview.data && toReview.data.items.length > 0 && (
-        <section className="card on-scroll">
-          <h3 style={{ marginBottom: 4 }}>Offres proposées par l&apos;agent</h3>
+        <section id="offres-proposees" className="card on-scroll target-section" aria-labelledby="offres-title">
+          <h3 id="offres-title" style={{ marginBottom: 4 }}>Offres proposées par l&apos;agent</h3>
           <p className="muted" style={{ marginTop: 0 }}>
             Validez les offres qui vous intéressent, écartez les autres. Rien n&apos;est envoyé sans votre accord.
           </p>

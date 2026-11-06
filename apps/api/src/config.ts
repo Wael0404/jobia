@@ -24,7 +24,11 @@ const EnvSchema = z.object({
   GOOGLE_CLIENT_ID: z.string().min(1),
   GOOGLE_CLIENT_SECRET: z.string().min(1),
   PUBLIC_API_URL: z.string().url(),
-  WEB_ORIGIN: z.string().url(),
+  /** Web app origin(s), comma-separated (e.g. localhost + a public tunnel for phone testing). */
+  WEB_ORIGIN: z
+    .string()
+    .transform((s) => s.split(",").map((o) => o.trim()).filter(Boolean))
+    .pipe(z.array(z.string().url()).min(1)),
   MOBILE_REDIRECT_URI: z.string().default("jobia://auth"),
 
   VAULT_MASTER_KEY: z.string().min(40),

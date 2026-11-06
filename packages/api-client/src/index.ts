@@ -155,9 +155,14 @@ export class JobiaClient {
         const next = await this.request<AuthTokens>("POST", "/v1/auth/refresh", { refreshToken: current.refreshToken }, false);
         await this.tokens.set(next);
         return next;
-      } catch {
-        await this.tokens.set(null);
-        return null;
+      } catch (error) {
+        // Only a server refusal ends the session. A network failure (offline, flaky
+        // tunnel, server restarting) keeps the tokens so the next request can retry.
+        if (error instanceof ApiError && error.status >= 400 && error.status < 500 && error.status !== 429) {
+          await this.tokens.set(null);
+          return null;
+        }
+        throw error;
       } finally {
         this.refreshing = null;
       }

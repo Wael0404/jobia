@@ -5,6 +5,7 @@ import {
   asc,
   desc,
   eq,
+  inArray,
   jobOffers,
   lt,
   or,
@@ -12,7 +13,7 @@ import {
   type Database,
 } from "@jobia/db";
 import { jobId, type TypedQueue } from "@jobia/queue";
-import type { ApplicationDetailDto, ApplicationDto, ListApplicationsQuery, Page } from "@jobia/shared";
+import { SENT_STATUSES, type ApplicationDetailDto, type ApplicationDto, type ListApplicationsQuery, type Page } from "@jobia/shared";
 import { Conflict, NotFound } from "../../http/errors";
 
 /** Cursor = base64url("<updatedAt ISO>|<id>") — stable keyset pagination, no OFFSET scans. */
@@ -38,7 +39,11 @@ export class ApplicationsService {
       .where(
         and(
           eq(applications.userId, userId),
-          query.status ? eq(applications.status, query.status) : undefined,
+          query.status
+            ? eq(applications.status, query.status)
+            : query.group === "sent"
+              ? inArray(applications.status, [...SENT_STATUSES])
+              : undefined,
           query.source ? eq(jobOffers.source, query.source) : undefined,
           cursor
             ? or(

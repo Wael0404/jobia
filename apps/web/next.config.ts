@@ -4,6 +4,8 @@ const config: NextConfig = {
   output: "standalone",
   transpilePackages: ["@jobia/api-client", "@jobia/shared"],
   poweredByHeader: false,
+  // Lets the dev server be opened through a public tunnel (phone testing).
+  allowedDevOrigins: ["*.trycloudflare.com"],
   async headers() {
     return [
       {

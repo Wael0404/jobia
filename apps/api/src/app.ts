@@ -31,7 +31,7 @@ export async function buildApp(container: Container): Promise<FastifyInstance> {
   await app.register(helmet);
   // @fastify/cors only allows GET/HEAD/POST by default: list every verb the clients use.
   await app.register(cors, {
-    origin: [config.WEB_ORIGIN],
+    origin: config.WEB_ORIGIN,
     credentials: false,
     methods: ["GET", "HEAD", "POST", "PUT", "PATCH", "DELETE"],
   });

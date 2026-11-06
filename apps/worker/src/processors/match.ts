@@ -1,5 +1,5 @@
 import { JobMatcher, MATCH_BATCH_SIZE, type MatchResult } from "@jobia/ai";
-import { and, applications, eq, inArray, jobOffers } from "@jobia/db";
+import { and, applications, dailyUsage, eq, inArray, jobOffers } from "@jobia/db";
 import { jobId, type JobPayloads } from "@jobia/queue";
 import { PLANS, type ApplicationStatus } from "@jobia/shared";
 import type { WorkerContext } from "../context";
@@ -80,6 +80,12 @@ export async function processMatch(ctx: WorkerContext, { userId, jobOfferIds }: 
  */
 export async function reserveDailyMatches(ctx: WorkerContext, userId: string, limit: number | null) {
   const key = `matches:${new Date().toISOString().slice(0, 10)}:${userId}`;
+  // The database is the source of truth: seed the atomic counter from today's
+  // applications when it does not exist yet (first run of the day, Redis restart).
+  if (!(await ctx.redis.exists(key))) {
+    const { matchesToday } = await dailyUsage(ctx.db, userId);
+    await ctx.redis.set(key, matchesToday, "EX", 2 * 86_400, "NX");
+  }
   const used = Number((await ctx.redis.get(key)) ?? 0);
   return {
     remaining: limit === null ? Number.POSITIVE_INFINITY : limit - used,

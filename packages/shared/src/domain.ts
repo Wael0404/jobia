@@ -32,6 +32,9 @@ export const APPLICATION_STATUSES = [
 ] as const;
 export type ApplicationStatus = (typeof APPLICATION_STATUSES)[number];
 
+/** Statuses of an application that actually reached the employer ("Candidatures envoyées"). */
+export const SENT_STATUSES = ["submitted", "viewed", "interview", "offer", "rejected"] as const satisfies readonly ApplicationStatus[];
+
 export const INTEGRATION_STATUSES = ["connected", "needs_reauth", "disabled"] as const;
 export type IntegrationStatus = (typeof INTEGRATION_STATUSES)[number];
 
