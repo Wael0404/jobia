@@ -12,6 +12,7 @@ import { cvRoutes } from "./modules/cv/cv.routes";
 import { integrationsRoutes } from "./modules/integrations/integrations.routes";
 import { meRoutes } from "./modules/me/me.routes";
 import { reportsRoutes } from "./modules/reports/reports.routes";
+import { agentRoutes } from "./modules/agent/agent.routes";
 
 export async function buildApp(container: Container): Promise<FastifyInstance> {
   const { config } = container;
@@ -50,7 +51,7 @@ export async function buildApp(container: Container): Promise<FastifyInstance> {
 
   await app.register(
     async (v1) => {
-      for (const routes of [authRoutes, meRoutes, cvRoutes, integrationsRoutes, applicationsRoutes, reportsRoutes]) {
+      for (const routes of [authRoutes, meRoutes, cvRoutes, integrationsRoutes, applicationsRoutes, reportsRoutes, agentRoutes]) {
         await v1.register(async (scope) => routes(scope, container));
       }
     },

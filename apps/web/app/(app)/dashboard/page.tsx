@@ -2,9 +2,12 @@
 
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
+import type { CSSProperties } from "react";
+import { CountUp } from "../../../components/CountUp";
 import { AgentModeSwitch } from "../../../components/AgentModeSwitch";
 import { CvUpload } from "../../../components/CvUpload";
 import { ApplicationsTable } from "../../../components/ApplicationsTable";
+import { JobSearchCard } from "../../../components/JobSearchCard";
 import { api } from "../../../lib/api";
 
 export default function DashboardPage() {
@@ -19,30 +22,39 @@ export default function DashboardPage() {
   const t = report.data?.totals;
   const sent = t ? t.submitted + t.viewed + t.interview + t.offer + t.rejected : 0;
 
+  const stats = [
+    { label: "Candidatures envoyées", value: sent, icon: "🚀", tone: "var(--primary)" },
+    { label: "Entretiens", value: t?.interview ?? 0, icon: "📅", tone: "var(--success)" },
+    { label: "En attente de validation", value: t?.pending_review ?? 0, icon: "⏳", tone: "var(--warning)" },
+    { label: "Action requise", value: t?.needs_user_action ?? 0, icon: "⚠️", tone: "var(--danger)" },
+  ];
+
   return (
     <div className="stack">
-      <h1>Bonjour {me.data?.name.split(" ")[0] ?? ""} 👋</h1>
-
-      <div className="grid">
-        <div className="card">
-          <div className="muted">Candidatures envoyées</div>
-          <div className="stat">{sent}</div>
-        </div>
-        <div className="card">
-          <div className="muted">Entretiens</div>
-          <div className="stat">{t?.interview ?? 0}</div>
-        </div>
-        <div className="card">
-          <div className="muted">En attente de validation</div>
-          <div className="stat">{t?.pending_review ?? 0}</div>
-        </div>
-        <div className="card">
-          <div className="muted">Action requise</div>
-          <div className="stat" style={{ color: t?.needs_user_action ? "var(--warning)" : undefined }}>
-            {t?.needs_user_action ?? 0}
-          </div>
+      <div className="page-head reveal">
+        <div>
+          <h1 style={{ marginBottom: 4 }}>
+            Bonjour <span className="gradient-text">{me.data?.name.split(" ")[0] ?? ""}</span> 👋
+          </h1>
+          <p className="muted" style={{ margin: 0 }}>
+            Voici où en est votre recherche d&apos;emploi.
+          </p>
         </div>
       </div>
+
+      <div className="grid">
+        {stats.map((s, i) => (
+          <div key={s.label} className="card lift stat-card reveal" style={{ "--i": i + 1, "--tone": s.tone } as CSSProperties}>
+            <div className="stat-icon" aria-hidden="true">
+              {s.icon}
+            </div>
+            <div className="muted">{s.label}</div>
+            <CountUp value={s.value} />
+          </div>
+        ))}
+      </div>
+
+      <JobSearchCard />
 
       <div className="grid">
         <CvUpload />
@@ -50,7 +62,7 @@ export default function DashboardPage() {
       </div>
 
       {report.data && report.data.upcomingInterviews.length > 0 && (
-        <section className="card">
+        <section className="card on-scroll">
           <h3>Prochains entretiens</h3>
           <ul>
             {report.data.upcomingInterviews.map((i) => (
@@ -67,14 +79,14 @@ export default function DashboardPage() {
       )}
 
       {toReview.data && toReview.data.items.length > 0 && (
-        <section className="card">
+        <section className="card on-scroll">
           <h3>Offres proposées par l&apos;agent</h3>
           <ApplicationsTable items={toReview.data.items} />
           <Link href="/applications?status=pending_review">Tout voir →</Link>
         </section>
       )}
 
-      <section className="card">
+      <section className="card on-scroll">
         <h3>Dernières activités</h3>
         {recent.data?.items.length ? (
           <ApplicationsTable items={recent.data.items} />

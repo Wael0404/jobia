@@ -57,5 +57,7 @@ export async function processMatch(ctx: WorkerContext, { userId, jobOfferIds }: 
       );
     }
   }
+  // Refresh the dashboard's cached statistics right away.
+  await ctx.redis.del(`report:summary:${userId}`);
   ctx.logger.info({ userId, candidates: offers.length }, "matching done");
 }

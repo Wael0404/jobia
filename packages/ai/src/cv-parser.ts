@@ -1,5 +1,6 @@
 import { CandidateProfileSchema, type CandidateProfile } from "@jobia/shared";
 import type { Llm } from "./llm";
+import { mockParseCv } from "./mock";
 
 export type CvDocument = { kind: "pdf"; base64: string } | { kind: "text"; text: string };
 
@@ -26,6 +27,7 @@ export class CvParser {
       content: [source, { type: "text", text: "Extract the candidate profile from this CV." }],
       schema: CandidateProfileSchema,
       effort: "medium",
+      mock: () => mockParseCv(doc),
     });
   }
 }

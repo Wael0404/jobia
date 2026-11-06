@@ -21,6 +21,13 @@ const EnvSchema = z.object({
   VAULT_MASTER_KEY: z.string().min(40),
   ANTHROPIC_API_KEY: z.string().optional(),
   AI_MODEL: z.string().default("claude-opus-5-5"),
+  /** "mock" = free local heuristics instead of Claude, for local testing only. */
+  AI_PROVIDER: z.enum(["anthropic", "mock"]).default("anthropic"),
+  /**
+   * "browser" = log into each board with the user's account (Playwright).
+   * "http" = read public search pages over plain HTTP, no login, no browser.
+   */
+  DISCOVERY_MODE: z.enum(["browser", "http"]).default("browser"),
 
   /**
    * Which queues this process consumes. Deploy browser queues (discovery,

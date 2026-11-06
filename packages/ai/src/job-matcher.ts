@@ -1,6 +1,7 @@
 import type { CandidateProfile, JobPreferences } from "@jobia/shared";
 import { z } from "zod";
 import { untrusted, type Llm } from "./llm";
+import { mockScore } from "./mock";
 
 export interface MatchableOffer {
   id: string;
@@ -69,6 +70,7 @@ export class JobMatcher {
       ],
       schema: MatchResultSchema,
       effort: "low",
+      mock: () => mockScore(profile, offers),
     });
 
     const known = new Set(offers.map((o) => o.id));

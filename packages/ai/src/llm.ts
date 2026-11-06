@@ -8,6 +8,11 @@ export type Effort = "low" | "medium" | "high";
 export interface LlmConfig {
   apiKey?: string;
   model: string;
+  /**
+   * "mock" answers every call locally with simple heuristics (no network, no cost).
+   * For local testing only — results are far less accurate than the real model.
+   */
+  provider?: "anthropic" | "mock";
 }
 
 export class LlmRefusalError extends Error {
@@ -35,13 +40,24 @@ export class Llm {
     this.client = new Anthropic({ apiKey: config.apiKey, maxRetries: 3, timeout: 120_000 });
   }
 
+  get isMock(): boolean {
+    return this.config.provider === "mock";
+  }
+
   async structured<S extends z.ZodType>(args: {
     system: string;
     content: BetaContentBlockParam[];
     schema: S;
     effort: Effort;
     maxTokens?: number;
+    /** Local heuristic answer used when the provider is "mock". */
+    mock?: () => z.infer<S> | Promise<z.infer<S>>;
   }): Promise<z.infer<S>> {
+    if (this.isMock) {
+      if (!args.mock) throw new LlmOutputError("No mock answer available for this AI capability");
+      return args.schema.parse(await args.mock()) as z.infer<S>;
+    }
+
     const response = await this.client.beta.messages.parse({
       model: this.config.model,
       max_tokens: args.maxTokens ?? 16_000,

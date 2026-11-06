@@ -6,6 +6,13 @@
 export const JOB_SOURCES = ["linkedin", "tanitjobs", "keejob", "emploitunisie", "email"] as const;
 export type JobSourceId = (typeof JOB_SOURCES)[number];
 
+/**
+ * Boards whose public search pages can be read without a login or a browser
+ * (robots.txt allows it, no anti-bot challenge). Used by the dashboard's
+ * "start search" button. Keep in sync with PUBLIC_BOARDS in @jobia/connectors.
+ */
+export const PUBLIC_SEARCH_SOURCES = ["tanitjobs", "keejob"] as const satisfies readonly JobSourceId[];
+
 /** How an application is physically delivered to the employer. */
 export const APPLY_CHANNELS = ["site_form", "easy_apply", "email"] as const;
 export type ApplyChannel = (typeof APPLY_CHANNELS)[number];

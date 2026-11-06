@@ -9,6 +9,7 @@ import type {
   MeResponse,
   Page,
   ReportSummaryDto,
+  AgentSearchStatusDto,
 } from "@jobia/shared";
 
 /** Where tokens are persisted: localStorage on web, SecureStore (Keychain/Keystore) on mobile. */
@@ -105,6 +106,10 @@ export class JobiaClient {
   withdraw = (id: string) => this.request<void>("POST", `/v1/applications/${id}/withdraw`);
 
   reportSummary = () => this.request<ReportSummaryDto>("GET", "/v1/reports/summary");
+
+  /** Background job search: start it, then poll its status (counts only). */
+  searchStatus = () => this.request<AgentSearchStatusDto>("GET", "/v1/agent/search");
+  startSearch = () => this.request<AgentSearchStatusDto>("POST", "/v1/agent/search");
 
   /* ---------- transport ---------- */
 

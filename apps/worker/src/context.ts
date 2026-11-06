@@ -99,7 +99,8 @@ export function createContext(config: WorkerConfig): WorkerContext {
   const redis = new Redis(config.REDIS_URL, { maxRetriesPerRequest: null });
   const connection = redisConnection(config.REDIS_URL);
   const vault = new SecretVault(new StaticKeyProvider(config.VAULT_MASTER_KEY));
-  const llm = new Llm({ apiKey: config.ANTHROPIC_API_KEY, model: config.AI_MODEL });
+  const llm = new Llm({ apiKey: config.ANTHROPIC_API_KEY, model: config.AI_MODEL, provider: config.AI_PROVIDER });
+  if (llm.isMock) logger.warn("AI_PROVIDER=mock: AI features use local heuristics, not Claude (testing only)");
   const browsers = new BrowserPool();
   const queues = {
     discovery: createQueue(QUEUES.discovery, connection),

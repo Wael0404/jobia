@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { untrusted, type Llm } from "./llm";
+import { mockClassifyEmail } from "./mock";
 
 export interface InboundEmail {
   messageId: string;
@@ -55,6 +56,7 @@ export class EmailClassifier {
       ],
       schema: ClassificationSchema,
       effort: "low",
+      mock: () => mockClassifyEmail(email, openApplications),
     });
   }
 }

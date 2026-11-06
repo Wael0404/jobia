@@ -35,7 +35,12 @@ export class CvService {
     const storageKey = `users/${userId}/cvs/${cv.id}.${EXTENSIONS[input.mimeType] ?? "bin"}`;
     await this.db.update(cvs).set({ storageKey }).where(eq(cvs.id, cv.id));
     const uploadUrl = await this.storage.presignUpload(storageKey, input.mimeType, input.sizeBytes);
-    return { cvId: cv.id, uploadUrl, headers: { "Content-Type": input.mimeType } };
+    // Every header signed into the presigned URL must be sent by the client, or S3 rejects the PUT.
+    return {
+      cvId: cv.id,
+      uploadUrl,
+      headers: { "Content-Type": input.mimeType, "x-amz-server-side-encryption": "AES256" },
+    };
   }
 
   /** Called by the client once the direct-to-S3 upload has finished. */

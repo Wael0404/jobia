@@ -1,6 +1,7 @@
 import type { CandidateProfile } from "@jobia/shared";
 import { z } from "zod";
 import { untrusted, type Llm } from "./llm";
+import { mockFormAnswers } from "./mock";
 
 export interface FormQuestion {
   id: string;
@@ -44,6 +45,7 @@ export class FormAnswerer {
       ],
       schema: FormAnswersSchema,
       effort: "low",
+      mock: () => mockFormAnswers(profile, savedAnswers, questions),
     });
     return answers;
   }

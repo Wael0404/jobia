@@ -2,6 +2,7 @@ import type { CandidateProfile } from "@jobia/shared";
 import { z } from "zod";
 import { untrusted, type Llm } from "./llm";
 import type { MatchableOffer } from "./job-matcher";
+import { mockApplicationEmail } from "./mock";
 
 const ApplicationEmailSchema = z.object({
   language: z.enum(["fr", "en", "ar"]),
@@ -30,6 +31,7 @@ export class ApplicationWriter {
       ],
       schema: ApplicationEmailSchema,
       effort: "medium",
+      mock: () => mockApplicationEmail(profile, offer),
     });
   }
 }

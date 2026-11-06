@@ -139,3 +139,12 @@ export interface ReportSummaryDto {
     location: string | null;
   }>;
 }
+
+/** Progress of a job search started from the dashboard. Only counts, never the details of the crawl. */
+export interface AgentSearchStatusDto {
+  status: "idle" | "running" | "done";
+  startedAt: string | null;
+  finishedAt: string | null;
+  /** Offers read on the job boards during the last search. */
+  offersFound: number;
+}
