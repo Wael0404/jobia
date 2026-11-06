@@ -26,6 +26,19 @@
 | `inbox.sync` | scheduler | historique Gmail incrémental → tri LLM → statut / entretien | Gmail + LLM |
 | `scheduler` | toutes les 15 min (1 seul worker) | parcourt les utilisateurs actifs (keyset) et planifie | DB |
 
+### Offres LinkedIn « Easy Apply »
+
+Le serveur ne postule jamais via LinkedIn. Au moment du `submit` :
+
+1. email RH écrit dans l'offre elle-même → candidature par Gmail ;
+2. sinon recherche web par Claude (outils serveur `web_search` / `web_fetch`, réponse via un outil strict) de
+   l'adresse **publiée** sur la page carrières / contact de l'entreprise ; l'adresse n'est retenue que si le worker
+   la retrouve lui-même sur la page citée (`OfferContactResolver`, fetch protégé contre le SSRF) ;
+3. sinon statut `user_to_apply` : lettre préparée, bouton « Postuler sur LinkedIn », puis « J'ai postulé ».
+
+Le résultat (positif ou négatif) est mis en cache par offre dans `offer_contacts` : une offre vue par
+1 000 utilisateurs n'est recherchée qu'une fois ; un résultat négatif est retenté après 7 jours.
+
 Garde-fous : quotas quotidiens par utilisateur et par site (Redis, atomiques, partagés entre workers),
 délais aléatoires « humains », un seul onglet par utilisateur, questions sans réponse → **jamais inventées** :
 la candidature passe en `needs_user_action` et la réponse fournie par l'utilisateur est mémorisée.

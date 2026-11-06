@@ -157,6 +157,22 @@ export const jobOffers = pgTable(
 );
 
 /**
+ * Recruiter contact found for an offer (or the absence of one), cached per
+ * offer: an offer seen by 1 000 users is researched once. Negative results
+ * are cached too and retried after a while.
+ */
+export const offerContacts = pgTable("offer_contacts", {
+  jobOfferId: uuid("job_offer_id")
+    .primaryKey()
+    .references(() => jobOffers.id, { onDelete: "cascade" }),
+  email: text("email"),
+  /** Public page where the address was found and verified. */
+  sourceUrl: text("source_url"),
+  foundVia: text("found_via").notNull(),
+  checkedAt: timestamp("checked_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+/**
  * Hot table. Every query is scoped by user_id, so it can be partitioned by
  * HASH(user_id) when it grows (plan in docs/ARCHITECTURE.md §Database).
  */
@@ -177,6 +193,8 @@ export const applications = pgTable(
     matchScore: integer("match_score").notNull(),
     matchReasons: jsonb("match_reasons").$type<string[]>().notNull().default(sql`'[]'::jsonb`),
     coverLetter: text("cover_letter"),
+    /** Channel actually used (an Easy Apply offer may be sent by email to the recruiter instead). */
+    appliedVia: applyChannelEnum("applied_via"),
     /** Gmail thread used when the application was sent by email, to correlate replies. */
     emailThreadId: text("email_thread_id"),
     attempts: integer("attempts").notNull().default(0),
@@ -256,3 +274,4 @@ export type Cv = typeof cvs.$inferSelect;
 export type JobOffer = typeof jobOffers.$inferSelect;
 export type NewJobOffer = typeof jobOffers.$inferInsert;
 export type Application = typeof applications.$inferSelect;
+export type OfferContact = typeof offerContacts.$inferSelect;

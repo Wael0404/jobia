@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import * as Clipboard from "expo-clipboard";
 import { useLocalSearchParams } from "expo-router";
 import { useState } from "react";
 import { Linking, ScrollView, Text, TextInput, View } from "react-native";
@@ -27,11 +28,22 @@ export default function ApplicationScreen() {
       <StatusBadge status={a.status} />
 
       <View style={styles.row}>
-        <Button title="Voir l'offre" onPress={() => void Linking.openURL(a.job.url)} />
+        {a.status === "user_to_apply" ? (
+          <>
+            <Button title="Postuler sur LinkedIn" variant="primary" onPress={() => void Linking.openURL(a.job.url)} />
+            <Button title="J'ai postulé ✓" loading={act.isPending} onPress={() => act.mutate(() => api.markApplied(a.id))} />
+          </>
+        ) : (
+          <Button title="Voir l'offre" onPress={() => void Linking.openURL(a.job.url)} />
+        )}
         {a.status === "pending_review" && <Button title="Valider et postuler" variant="primary" loading={act.isPending} onPress={() => act.mutate(() => api.approve(a.id))} />}
         {a.status === "failed" && <Button title="Réessayer" onPress={() => act.mutate(() => api.retry(a.id))} />}
-        {["pending_review", "queued", "needs_user_action", "submitted", "viewed", "interview"].includes(a.status) && (
-          <Button title="Retirer" variant="danger" onPress={() => act.mutate(() => api.withdraw(a.id))} />
+        {["pending_review", "queued", "needs_user_action", "user_to_apply", "submitted", "viewed", "interview"].includes(a.status) && (
+          <Button
+            title={a.status === "user_to_apply" ? "Pas intéressé" : "Retirer"}
+            variant="danger"
+            onPress={() => act.mutate(() => api.withdraw(a.id))}
+          />
         )}
       </View>
 
@@ -50,6 +62,14 @@ export default function ApplicationScreen() {
             loading={act.isPending}
             onPress={() => act.mutate(async () => { await api.saveAnswers(answers); await api.retry(a.id); })}
           />
+        </Card>
+      )}
+
+      {a.coverLetter && (
+        <Card>
+          <Text style={styles.h3}>{a.status === "user_to_apply" ? "Lettre préparée pour vous" : "Message envoyé"}</Text>
+          <Text selectable>{a.coverLetter}</Text>
+          <Button title="Copier la lettre" onPress={() => void Clipboard.setStringAsync(a.coverLetter ?? "")} />
         </Card>
       )}
 

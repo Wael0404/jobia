@@ -8,6 +8,7 @@ import { CountUp } from "../../../components/CountUp";
 import { AgentActivity } from "../../../components/AgentActivity";
 import { AgentModeSwitch } from "../../../components/AgentModeSwitch";
 import { CvUpload } from "../../../components/CvUpload";
+import { ManualApplyList } from "../../../components/ManualApplyList";
 import { ApplicationsTable } from "../../../components/ApplicationsTable";
 import { JobSearchCard } from "../../../components/JobSearchCard";
 import { PlanCard } from "../../../components/PlanCard";
@@ -21,6 +22,11 @@ export default function DashboardPage() {
   const toReview = useQuery({
     queryKey: ["applications", "pending_review"],
     queryFn: () => api.applications({ status: "pending_review", limit: 5 }),
+  });
+
+  const toApply = useQuery({
+    queryKey: ["applications", "user_to_apply"],
+    queryFn: () => api.applications({ status: "user_to_apply", limit: 10 }),
   });
 
   const t = report.data?.totals;
@@ -37,6 +43,13 @@ export default function DashboardPage() {
       icon: "⏳",
       tone: "var(--warning)",
       href: hasProposals ? "#offres-proposees" : "/applications?status=pending_review",
+    },
+    {
+      label: "À postuler vous-même",
+      value: t?.user_to_apply ?? 0,
+      icon: "👆",
+      tone: "var(--primary-2)",
+      href: (toApply.data?.items.length ?? 0) > 0 ? "#a-postuler" : "/applications?status=user_to_apply",
     },
     { label: "Action requise", value: t?.needs_user_action ?? 0, icon: "⚠️", tone: "var(--danger)", href: "/applications?status=needs_user_action" },
   ];
@@ -97,6 +110,18 @@ export default function DashboardPage() {
               </li>
             ))}
           </ul>
+        </section>
+      )}
+
+      {toApply.data && toApply.data.items.length > 0 && (
+        <section id="a-postuler" className="card on-scroll target-section" aria-labelledby="a-postuler-title">
+          <h3 id="a-postuler-title">À postuler vous-même sur LinkedIn</h3>
+          <p className="muted" style={{ marginTop: 0 }}>
+            Aucun email RH n&apos;est publié pour ces offres « Easy Apply ». L&apos;agent a préparé votre lettre : ouvrez
+            l&apos;offre, postulez, puis cliquez « J&apos;ai postulé » pour que le suivi continue.
+          </p>
+          <ManualApplyList items={toApply.data.items} />
+          <Link href="/applications?status=user_to_apply">Tout voir →</Link>
         </section>
       )}
 

@@ -99,6 +99,8 @@ export interface ApplicationDto {
   status: (typeof APPLICATION_STATUSES)[number];
   source: (typeof JOB_SOURCES)[number];
   matchScore: number;
+  /** How the application was (or will be) delivered: email, site form, or Easy Apply by the user. */
+  appliedVia: "site_form" | "easy_apply" | "email" | null;
   job: { title: string; company: string; location: string | null; url: string };
   submittedAt: string | null;
   updatedAt: string;

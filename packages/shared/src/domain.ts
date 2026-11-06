@@ -27,6 +27,7 @@ export const APPLICATION_STATUSES = [
   "offer", // the candidate received an offer
   "rejected", // employer declined
   "withdrawn", // the user cancelled it
+  "user_to_apply", // LinkedIn Easy Apply with no recruiter email: the user applies with one click
   "needs_user_action", // captcha, 2FA, custom question we cannot answer…
   "failed", // permanent technical failure after retries
 ] as const;

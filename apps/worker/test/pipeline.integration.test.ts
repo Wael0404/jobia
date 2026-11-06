@@ -66,6 +66,18 @@ describe.skipIf(!enabled)("agent pipeline (integration)", () => {
     await close();
   });
 
+  /** Minimal in-memory Redis: the matcher uses it for the daily plan allowance and the report cache. */
+  const store = new Map<string, number>();
+  const memoryRedis = {
+    exists: async (k: string) => (store.has(k) ? 1 : 0),
+    get: async (k: string) => (store.has(k) ? String(store.get(k)) : null),
+    set: async (k: string, v: number | string) => (store.has(k) ? null : (store.set(k, Number(v)), "OK")),
+    incrby: async (k: string, n: number) => (store.set(k, (store.get(k) ?? 0) + n), store.get(k)!),
+    decrby: async (k: string, n: number) => (store.set(k, (store.get(k) ?? 0) - n), store.get(k)!),
+    expire: async () => 1,
+    del: async (k: string) => (store.delete(k) ? 1 : 0),
+  };
+
   function ctx(overrides: Partial<WorkerContext["ai"]>, gmail: unknown = null): WorkerContext {
     const scores: Record<string, Omit<MatchResult, "offerId">> = {
       [offerIds.strong!]: { score: 91, reasons: ["React 6 ans"], dealBreaker: null },
@@ -74,6 +86,7 @@ describe.skipIf(!enabled)("agent pipeline (integration)", () => {
     };
     return {
       db,
+      redis: memoryRedis,
       logger: { info() {}, warn() {}, error() {} },
       ai: {
         matcher: {

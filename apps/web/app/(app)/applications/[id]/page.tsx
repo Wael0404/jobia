@@ -34,9 +34,20 @@ export default function ApplicationDetailPage() {
       </div>
 
       <div className="row">
-        <a className="btn" href={a.job.url} target="_blank" rel="noreferrer noopener">
-          Voir l&apos;offre ({a.source})
-        </a>
+        {a.status === "user_to_apply" ? (
+          <>
+            <a className="btn linkedin" href={a.job.url} target="_blank" rel="noreferrer noopener">
+              Postuler sur LinkedIn ↗
+            </a>
+            <button className="btn primary" onClick={() => act.mutate(() => api.markApplied(a.id))} disabled={act.isPending}>
+              J&apos;ai postulé ✓
+            </button>
+          </>
+        ) : (
+          <a className="btn" href={a.job.url} target="_blank" rel="noreferrer noopener">
+            Voir l&apos;offre ({a.source})
+          </a>
+        )}
         {a.status === "pending_review" && (
           <button className="btn primary" onClick={() => act.mutate(() => api.approve(a.id))} disabled={act.isPending}>
             Valider et postuler
@@ -47,12 +58,18 @@ export default function ApplicationDetailPage() {
             Réessayer
           </button>
         )}
-        {["pending_review", "queued", "needs_user_action", "submitted", "viewed", "interview"].includes(a.status) && (
+        {["pending_review", "queued", "needs_user_action", "user_to_apply", "submitted", "viewed", "interview"].includes(a.status) && (
           <button className="btn danger" onClick={() => act.mutate(() => api.withdraw(a.id))} disabled={act.isPending}>
-            Retirer
+            {a.status === "user_to_apply" ? "Pas intéressé" : "Retirer"}
           </button>
         )}
       </div>
+
+      {a.appliedVia && a.status !== "user_to_apply" && (
+        <p className="muted" style={{ margin: 0 }}>
+          Envoyée {a.appliedVia === "email" ? "par email au recruteur" : a.appliedVia === "easy_apply" ? "par vous sur LinkedIn" : "via le formulaire du site"}
+        </p>
+      )}
 
       {a.status === "needs_user_action" && a.pendingQuestions.length > 0 && (
         <section className="card warning stack">
@@ -81,7 +98,12 @@ export default function ApplicationDetailPage() {
         </section>
         {a.coverLetter && (
           <section className="card">
-            <h3>Message envoyé</h3>
+            <div className="row">
+              <h3 style={{ marginRight: "auto" }}>{a.status === "user_to_apply" ? "Lettre préparée pour vous" : "Message envoyé"}</h3>
+              <button className="btn" onClick={() => void navigator.clipboard.writeText(a.coverLetter ?? "")}>
+                Copier
+              </button>
+            </div>
             <p style={{ whiteSpace: "pre-wrap" }}>{a.coverLetter}</p>
           </section>
         )}

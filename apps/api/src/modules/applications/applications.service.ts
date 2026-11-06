@@ -106,6 +106,19 @@ export class ApplicationsService {
     return this.requeue(userId, applicationId, "Nouvelle tentative demandée");
   }
 
+  /** The user applied on LinkedIn themselves (Easy Apply offer with no recruiter email). */
+  async markApplied(userId: string, applicationId: string): Promise<void> {
+    const result = await transitionApplication(this.db, {
+      applicationId,
+      userId,
+      to: "submitted",
+      actor: "user",
+      message: "Candidature envoyée par vous sur LinkedIn",
+      patch: { submittedAt: new Date(), appliedVia: "easy_apply" },
+    });
+    if (!result.applied) throw Conflict("This application is not waiting for you to apply");
+  }
+
   async withdraw(userId: string, applicationId: string): Promise<void> {
     const result = await transitionApplication(this.db, {
       applicationId,
@@ -142,6 +155,7 @@ export class ApplicationsService {
       status: app.status,
       source: job.source,
       matchScore: app.matchScore,
+      appliedVia: app.appliedVia,
       job: { title: job.title, company: job.company, location: job.location, url: job.url },
       submittedAt: app.submittedAt?.toISOString() ?? null,
       updatedAt: app.updatedAt.toISOString(),

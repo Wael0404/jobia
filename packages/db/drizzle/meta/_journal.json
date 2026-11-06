@@ -15,6 +15,13 @@
       "when": 1793971506086,
       "tag": "0001_worried_cerise",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1793995252148,
+      "tag": "0002_easy_apply_contacts",
+      "breakpoints": true
     }
   ]
 }

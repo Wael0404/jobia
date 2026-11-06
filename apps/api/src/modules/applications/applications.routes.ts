@@ -22,5 +22,6 @@ export async function applicationsRoutes(app: FastifyInstance, { services }: Con
 
   app.post("/applications/:id/approve", action((u, id) => svc.approve(u, id)));
   app.post("/applications/:id/retry", action((u, id) => svc.retry(u, id)));
+  app.post("/applications/:id/mark-applied", action((u, id) => svc.markApplied(u, id)));
   app.post("/applications/:id/withdraw", action((u, id) => svc.withdraw(u, id)));
 }

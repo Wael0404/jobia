@@ -162,6 +162,10 @@ h3 { font-size: 17px; }
 .badge.interview, .badge.offer { background: color-mix(in srgb, var(--success) 15%, transparent); color: var(--success); }
 .badge.needs_user_action, .badge.pending_review { background: color-mix(in srgb, var(--warning) 16%, transparent); color: var(--warning); }
 .badge.rejected, .badge.failed { background: color-mix(in srgb, var(--danger) 14%, transparent); color: var(--danger); }
+.badge.user_to_apply { background: color-mix(in srgb, var(--primary-2) 16%, transparent); color: var(--primary-2); }
+/* LinkedIn brand button (Easy Apply offers the user applies to) */
+.btn.linkedin { background: #0a66c2; border-color: #0a66c2; color: #fff; }
+.btn.linkedin:not(:disabled):hover { border-color: #0a66c2; box-shadow: 0 10px 24px -10px rgba(10, 102, 194, .7); }
 
 table { width: 100%; border-collapse: collapse; }
 th, td { text-align: left; padding: 12px 8px; border-bottom: 1px solid var(--border); vertical-align: top; }

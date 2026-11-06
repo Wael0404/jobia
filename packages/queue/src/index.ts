@@ -57,6 +57,8 @@ export function redisConnection(url: string): ConnectionOptions {
   return {
     host: u.hostname,
     port: Number(u.port || 6379),
+    // Honour the database index (redis://host:6379/2), like the other Redis clients do.
+    db: Number(u.pathname.replace("/", "")) || 0,
     username: u.username || undefined,
     password: u.password || undefined,
     tls: u.protocol === "rediss:" ? {} : undefined,
