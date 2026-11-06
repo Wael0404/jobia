@@ -10,6 +10,8 @@ import type {
   Page,
   ReportSummaryDto,
   AgentSearchStatusDto,
+  BillingStatusDto,
+  PlanId,
 } from "@jobia/shared";
 
 /** Where tokens are persisted: localStorage on web, SecureStore (Keychain/Keystore) on mobile. */
@@ -110,6 +112,10 @@ export class JobiaClient {
   /** Background job search: start it, then poll its status (counts only). */
   searchStatus = () => this.request<AgentSearchStatusDto>("GET", "/v1/agent/search");
   startSearch = () => this.request<AgentSearchStatusDto>("POST", "/v1/agent/search");
+
+  /** Subscription plan and today's usage. */
+  billing = () => this.request<BillingStatusDto>("GET", "/v1/billing");
+  choosePlan = (plan: PlanId) => this.request<BillingStatusDto>("POST", "/v1/billing/plan", { plan });
 
   /* ---------- transport ---------- */
 

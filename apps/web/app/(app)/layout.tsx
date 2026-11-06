@@ -9,6 +9,7 @@ const LINKS = [
   { href: "/dashboard", label: "Tableau de bord" },
   { href: "/applications", label: "Candidatures" },
   { href: "/settings", label: "Paramètres" },
+  { href: "/pricing", label: "Abonnement" },
 ];
 
 export default function AppLayout({ children }: { children: ReactNode }) {
@@ -17,7 +18,13 @@ export default function AppLayout({ children }: { children: ReactNode }) {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    void hasSession().then((ok) => (ok ? setReady(true) : router.replace("/")));
+    void hasSession().then(async (ok) => {
+      if (!ok) return router.replace("/");
+      // Users who never picked a plan finish onboarding first.
+      const me = await api.me().catch(() => null);
+      if (me && !me.planSelected) return router.replace("/pricing?onboarding=1");
+      setReady(true);
+    });
   }, [router]);
 
   if (!ready) return null;

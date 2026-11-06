@@ -5,6 +5,7 @@ import { Redis } from "ioredis";
 import type { Config } from "./config";
 import { CvStorage } from "./infra/storage";
 import { AgentService } from "./modules/agent/agent.service";
+import { BillingService } from "./modules/billing/billing.service";
 import { ApplicationsService } from "./modules/applications/applications.service";
 import { AuthService } from "./modules/auth/auth.service";
 import { GoogleOAuth } from "./modules/auth/google-oauth";
@@ -35,6 +36,7 @@ export interface Container {
     applications: ApplicationsService;
     reports: ReportsService;
     agent: AgentService;
+    billing: BillingService;
   };
   close(): Promise<void>;
 }
@@ -68,6 +70,7 @@ export function createContainer(config: Config): Container {
       applications: new ApplicationsService(db, queues.submit),
       reports: new ReportsService(db, redis),
       agent: new AgentService(db, redis, queues.discovery),
+      billing: new BillingService(db, redis, config.BILLING_MODE === "test"),
     },
     async close() {
       await Promise.all(Object.values(queues).map((q) => q.close()));

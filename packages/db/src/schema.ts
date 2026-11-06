@@ -18,6 +18,7 @@ import {
   APPLY_CHANNELS,
   INTEGRATION_STATUSES,
   JOB_SOURCES,
+  PLAN_IDS,
 } from "@jobia/shared";
 
 const timestamps = {
@@ -29,6 +30,7 @@ const timestamps = {
 };
 
 export const agentModeEnum = pgEnum("agent_mode", AGENT_MODES);
+export const planEnum = pgEnum("plan", PLAN_IDS);
 export const applicationStatusEnum = pgEnum("application_status", APPLICATION_STATUSES);
 export const applyChannelEnum = pgEnum("apply_channel", APPLY_CHANNELS);
 export const jobSourceEnum = pgEnum("job_source", JOB_SOURCES);
@@ -54,6 +56,9 @@ export const users = pgTable(
     name: text("name").notNull(),
     avatarUrl: text("avatar_url"),
     agentMode: agentModeEnum("agent_mode").notNull().default("review"),
+    plan: planEnum("plan").notNull().default("free"),
+    /** Set when the user picks a plan (onboarding is done); null = must choose a plan first. */
+    planSelectedAt: timestamp("plan_selected_at", { withTimezone: true }),
     preferences: jsonb("preferences").$type<JobPreferences>(),
     /** Answers to recurring form questions ("notice period", "expected salary"…), provided by the user. */
     savedAnswers: jsonb("saved_answers").$type<Record<string, string>>().notNull().default(sql`'{}'::jsonb`),

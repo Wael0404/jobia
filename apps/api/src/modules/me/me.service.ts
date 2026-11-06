@@ -13,6 +13,8 @@ export class MeService {
         name: users.name,
         avatarUrl: users.avatarUrl,
         agentMode: users.agentMode,
+        plan: users.plan,
+        planSelectedAt: users.planSelectedAt,
         cvId: cvs.id,
       })
       .from(users)
@@ -20,8 +22,8 @@ export class MeService {
       .where(eq(users.id, userId))
       .limit(1);
     if (!row) throw NotFound("User");
-    const { cvId, ...user } = row;
-    return { ...user, hasCv: cvId !== null };
+    const { cvId, planSelectedAt, ...user } = row;
+    return { ...user, hasCv: cvId !== null, planSelected: planSelectedAt !== null };
   }
 
   async getPreferences(userId: string): Promise<JobPreferences> {

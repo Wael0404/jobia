@@ -29,6 +29,8 @@ const EnvSchema = z.object({
 
   VAULT_MASTER_KEY: z.string().min(40),
   FEATURE_LINKEDIN_AUTOMATION: z.stringbool().default(false),
+  /** "test" activates paid plans without payment (no payment provider integrated yet). */
+  BILLING_MODE: z.enum(["test", "live"]).default("live"),
 });
 
 export type Config = z.infer<typeof EnvSchema>;

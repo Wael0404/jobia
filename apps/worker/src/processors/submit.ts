@@ -1,6 +1,7 @@
 import type { ApplyResult } from "@jobia/connectors";
 import { and, applications, eq, jobOffers, sql, transitionApplication } from "@jobia/db";
 import type { JobPayloads } from "@jobia/queue";
+import { capFor, PLANS } from "@jobia/shared";
 import { DelayedError, type Job } from "bullmq";
 import type { WorkerContext } from "../context";
 import { GmailAuthError } from "../infra/gmail";
@@ -29,8 +30,9 @@ export async function processSubmit(ctx: WorkerContext, data: JobPayloads["submi
   if (!subject) permanent("User has no parsed CV");
   if (subject.preferences.agentMode === "paused") return;
 
-  // Daily caps: postpone (not fail) until tomorrow when reached.
-  if (!(await ctx.quota.tryConsume(userId, row.offer.source, subject.preferences.maxApplicationsPerDay))) {
+  // Daily caps (plan limit + user preference): postpone (not fail) until tomorrow when reached.
+  const dailyCap = capFor(PLANS[subject.user.plan].dailyApplications, subject.preferences.maxApplicationsPerDay);
+  if (!(await ctx.quota.tryConsume(userId, row.offer.source, dailyCap))) {
     const tomorrow = new Date();
     tomorrow.setUTCHours(24, 5 + Math.floor(Math.random() * 120), 0, 0);
     await job.moveToDelayed(tomorrow.getTime(), token);
@@ -144,6 +146,13 @@ async function sendByEmail(ctx: WorkerContext, s: AgentSubject, app: AppRow, off
 async function applyInBrowser(ctx: WorkerContext, s: AgentSubject, offer: OfferRow): Promise<ApplyResult> {
   const connector = ctx.connectors.get(offer.source);
   if (!connector) return { status: "failed", reason: `Source ${offer.source} désactivée`, retryable: false };
+  if (ctx.config.DISCOVERY_MODE === "http") {
+    // Browserless mode: the agent never drives a browser, so site forms are filled by the user.
+    return {
+      status: "needs_user_action",
+      reason: `Postulez directement sur ${connector.displayName} via le lien de l'offre (envoi automatique par formulaire désactivé)`,
+    };
+  }
   const provider = offer.source as Exclude<OfferRow["source"], "email">;
   const integration = await ctx.secrets.load(s.user.id, provider);
   if (!integration) return { status: "needs_user_action", reason: `Connectez votre compte ${connector.displayName}` };

@@ -38,7 +38,7 @@ function ApplicationsList() {
         </select>
       </div>
       <section className="card">
-        {items.length ? <ApplicationsTable items={items} /> : <p className="muted">Aucune candidature.</p>}
+        {items.length ? <ApplicationsTable items={items} actions /> : <p className="muted">Aucune candidature.</p>}
         {query.hasNextPage && (
           <button className="btn" onClick={() => void query.fetchNextPage()} disabled={query.isFetchingNextPage}>
             Charger plus

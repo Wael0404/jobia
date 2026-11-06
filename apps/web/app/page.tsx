@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, type CSSProperties } from "react";
 import { RobotAgent } from "../components/RobotAgent";
@@ -49,6 +50,9 @@ export default function LandingPage() {
               <button className="btn primary lg" onClick={signIn}>
                 Commencer avec Google →
               </button>
+              <Link href="/pricing" className="btn lg">
+                Voir les forfaits
+              </Link>
             </div>
             <ul className="chips reveal" style={delay(4)} aria-label="Points clés">
               <li>⚡ Recherche en arrière-plan</li>

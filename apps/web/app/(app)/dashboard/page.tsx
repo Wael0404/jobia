@@ -4,14 +4,17 @@ import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import type { CSSProperties } from "react";
 import { CountUp } from "../../../components/CountUp";
+import { AgentActivity } from "../../../components/AgentActivity";
 import { AgentModeSwitch } from "../../../components/AgentModeSwitch";
 import { CvUpload } from "../../../components/CvUpload";
 import { ApplicationsTable } from "../../../components/ApplicationsTable";
 import { JobSearchCard } from "../../../components/JobSearchCard";
+import { PlanCard } from "../../../components/PlanCard";
 import { api } from "../../../lib/api";
 
 export default function DashboardPage() {
   const me = useQuery({ queryKey: ["me"], queryFn: api.me });
+  const prefs = useQuery({ queryKey: ["preferences"], queryFn: api.preferences });
   const report = useQuery({ queryKey: ["report"], queryFn: api.reportSummary, refetchInterval: 60_000 });
   const recent = useQuery({ queryKey: ["applications", "recent"], queryFn: () => api.applications({ limit: 8 }) });
   const toReview = useQuery({
@@ -54,11 +57,12 @@ export default function DashboardPage() {
         ))}
       </div>
 
-      <JobSearchCard />
+      {prefs.data?.agentMode === "autopilot" ? <AgentActivity /> : <JobSearchCard />}
 
       <div className="grid">
         <CvUpload />
         <AgentModeSwitch />
+        <PlanCard />
       </div>
 
       {report.data && report.data.upcomingInterviews.length > 0 && (
@@ -80,8 +84,11 @@ export default function DashboardPage() {
 
       {toReview.data && toReview.data.items.length > 0 && (
         <section className="card on-scroll">
-          <h3>Offres proposées par l&apos;agent</h3>
-          <ApplicationsTable items={toReview.data.items} />
+          <h3 style={{ marginBottom: 4 }}>Offres proposées par l&apos;agent</h3>
+          <p className="muted" style={{ marginTop: 0 }}>
+            Validez les offres qui vous intéressent, écartez les autres. Rien n&apos;est envoyé sans votre accord.
+          </p>
+          <ApplicationsTable items={toReview.data.items} actions />
           <Link href="/applications?status=pending_review">Tout voir →</Link>
         </section>
       )}

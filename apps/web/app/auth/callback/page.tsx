@@ -16,7 +16,9 @@ function Callback() {
     done.current = true; // the one-time code must be exchanged exactly once (StrictMode double effects)
     api
       .exchangeLoginCode(code)
-      .then(() => router.replace("/dashboard"))
+      .then(() => api.me())
+      // First sign-in: the user picks a plan before reaching the dashboard.
+      .then((me) => router.replace(me.planSelected ? "/dashboard" : "/pricing?onboarding=1"))
       .catch(() => setError("La connexion a échoué. Merci de réessayer."));
   }, [params, router]);
 

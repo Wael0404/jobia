@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { AGENT_MODES, APPLICATION_STATUSES, JOB_SOURCES } from "./domain";
+import { PLAN_IDS, type PlanId } from "./plans";
 
 /* ---------- Auth ---------- */
 
@@ -24,6 +25,9 @@ export interface MeResponse {
   avatarUrl: string | null;
   agentMode: (typeof AGENT_MODES)[number];
   hasCv: boolean;
+  plan: PlanId;
+  /** False until the user picked a plan once: the app sends them to the plans page first. */
+  planSelected: boolean;
 }
 
 /* ---------- CV ---------- */
@@ -147,4 +151,17 @@ export interface AgentSearchStatusDto {
   finishedAt: string | null;
   /** Offers read on the job boards during the last search. */
   offersFound: number;
+}
+
+/* ---------- Billing ---------- */
+
+export const ChoosePlanSchema = z.object({ plan: z.enum(PLAN_IDS) });
+
+export interface BillingStatusDto {
+  plan: PlanId;
+  /** False until the user picked a plan once (onboarding). */
+  planSelected: boolean;
+  /** Test mode: paid plans are activated without payment. */
+  testMode: boolean;
+  usage: { matchesToday: number; applicationsToday: number };
 }
