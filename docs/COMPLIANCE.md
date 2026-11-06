@@ -17,8 +17,13 @@ au mieux, mais certaines décisions relèvent du produit et du juridique.
   - rythme humain, quotas quotidiens faibles, aucun message privé envoyé aux recruteurs ;
   - les posts RH avec une adresse email sont traités par **email** (Gmail de l'utilisateur), ce qui
     ne nécessite pas d'agir sur LinkedIn au-delà de la lecture.
-- **Recommandation** : décider avec un juriste avant d'activer cette fonctionnalité, ou la limiter au mode
-  « Validation » (l'utilisateur valide chaque candidature) qui réduit fortement le volume automatisé.
+- **Candidatures Easy Apply** : le pipeline ne les automatise plus. L'agent postule par email quand l'entreprise
+  publie une adresse de recrutement, sinon l'utilisateur postule lui-même en un clic depuis l'application
+  (statut « À postuler vous-même »). Aucune action n'est faite sur LinkedIn au nom de l'utilisateur pour postuler.
+- La **découverte** des offres reste une lecture automatisée de LinkedIn, soumise aux mêmes CGU : à décider
+  avec un juriste avant d'activer `FEATURE_LINKEDIN_AUTOMATION`.
+- Adresses email : seules des adresses **publiées** et vérifiées sur une page publique sont utilisées ;
+  aucune adresse n'est devinée.
 
 ## 2. Sites d'emploi tunisiens
 

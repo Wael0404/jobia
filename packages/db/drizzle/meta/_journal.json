@@ -8,6 +8,13 @@
       "when": 1793908465640,
       "tag": "0000_init",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1793992152255,
+      "tag": "0001_easy_apply_contacts",
+      "breakpoints": true
     }
   ]
 }

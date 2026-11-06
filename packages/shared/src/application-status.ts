@@ -8,7 +8,8 @@ import type { ApplicationStatus } from "./domain";
 const TRANSITIONS: Record<ApplicationStatus, readonly ApplicationStatus[]> = {
   pending_review: ["queued", "withdrawn"],
   queued: ["submitting", "withdrawn", "needs_user_action"],
-  submitting: ["submitted", "failed", "needs_user_action", "queued"],
+  submitting: ["submitted", "failed", "needs_user_action", "queued", "user_to_apply"],
+  user_to_apply: ["submitted", "withdrawn"],
   needs_user_action: ["queued", "withdrawn", "submitted"],
   submitted: ["viewed", "interview", "rejected", "offer", "withdrawn"],
   viewed: ["interview", "rejected", "offer", "withdrawn"],

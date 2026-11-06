@@ -1,4 +1,4 @@
-import { ApplicationWriter, CvParser, EmailClassifier, FormAnswerer, JobMatcher, Llm } from "@jobia/ai";
+import { ApplicationWriter, CvParser, EmailClassifier, FormAnswerer, JobMatcher, Llm, RecruiterContactFinder } from "@jobia/ai";
 import { ConnectorRegistry } from "@jobia/connectors";
 import { and, createDatabase, eq, integrations, type Database, type IntegrationProvider } from "@jobia/db";
 import { createQueue, QUEUES, redisConnection, type TypedQueue } from "@jobia/queue";
@@ -9,7 +9,9 @@ import type { WorkerConfig } from "./config";
 import { BrowserPool } from "./infra/browser-pool";
 import { DailyQuota } from "./infra/daily-quota";
 import { GmailMailbox } from "./infra/gmail";
+import { fetchPublicText } from "./infra/safe-fetch";
 import { CvFiles } from "./infra/storage";
+import { OfferContactResolver } from "./services/offer-contacts";
 
 /** Everything a processor may need. Built once per process (composition root). */
 export interface WorkerContext {
@@ -22,6 +24,8 @@ export interface WorkerContext {
   browsers: BrowserPool;
   connectors: ConnectorRegistry;
   quota: DailyQuota;
+  /** Recruiter email research for LinkedIn Easy Apply offers (cached per offer). */
+  contacts: OfferContactResolver;
   ai: {
     cvParser: CvParser;
     matcher: JobMatcher;
@@ -122,6 +126,12 @@ export function createContext(config: WorkerConfig): WorkerContext {
       perUser: config.AGENT_MAX_APPLICATIONS_PER_DAY,
       perSource: config.AGENT_MAX_PER_SOURCE_PER_DAY,
     }),
+    contacts: new OfferContactResolver(
+      db,
+      new RecruiterContactFinder({ apiKey: config.ANTHROPIC_API_KEY, model: config.AI_MODEL }),
+      fetchPublicText,
+      logger,
+    ),
     ai: {
       cvParser: new CvParser(llm),
       matcher: new JobMatcher(llm),

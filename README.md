@@ -6,7 +6,10 @@ L'utilisateur se connecte avec **Google**, dépose son **CV**, et un **agent IA*
 2. se connecte **en son nom** à LinkedIn et aux sites d'emploi tunisiens (Tanitjobs, Keejob, Emploitunisie) ;
 3. cherche les offres + les posts LinkedIn de RH (« envoyez votre CV à rh@… ») ;
 4. note chaque offre (score 0-100) et ne garde que les bonnes ;
-5. **postule** : formulaire du site, LinkedIn Easy Apply, ou **email envoyé depuis le Gmail de l'utilisateur** avec le CV en pièce jointe et une lettre personnalisée ;
+5. **postule** : formulaire du site, ou **email envoyé depuis le Gmail de l'utilisateur** avec le CV en pièce jointe et une lettre personnalisée.
+   Pour une offre LinkedIn **Easy Apply**, l'agent cherche l'**email RH publié** par l'entreprise et postule par email ;
+   s'il n'en trouve pas, l'offre apparaît dans « À postuler vous-même » avec la lettre prête et un bouton
+   **Postuler sur LinkedIn** (l'utilisateur envoie en un clic, puis confirme « J'ai postulé ») ;
 6. lit les réponses dans Gmail et met à jour chaque candidature (**vue, entretien, refus, offre**) ;
 7. affiche un **rapport** : candidatures envoyées, entretiens à venir, avancement de chaque poste.
 

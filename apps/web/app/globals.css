@@ -48,6 +48,8 @@ h1, h2, h3 { margin: 0 0 12px; line-height: 1.25; }
 .badge.submitted, .badge.viewed { background: #e6efff; color: #2747c9; }
 .badge.interview, .badge.offer { background: #e3f6ea; color: var(--success); }
 .badge.needs_user_action, .badge.pending_review { background: #fff3df; color: var(--warning); }
+.badge.user_to_apply { background: #ede9ff; color: #5b3fd6; }
+.btn.linkedin { background: #0a66c2; border-color: #0a66c2; color: #fff; }
 .badge.rejected, .badge.failed { background: #fde8e8; color: var(--danger); }
 
 table { width: 100%; border-collapse: collapse; }

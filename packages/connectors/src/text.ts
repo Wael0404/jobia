@@ -25,6 +25,16 @@ const HIRING_MARKERS = [
   "مطلوب",
 ];
 
+const NON_RECRUITMENT_LOCAL_PARTS =
+  /^(no-?reply|do-?not-?reply|ne-?pas-?repondre|postmaster|webmaster|abuse|privacy|dpo|gdpr|rgpd|billing|facturation|invoice|sales|ventes?|commercial|support|help|press|presse|marketing|newsletter)\b/i;
+
+/** Filters out addresses that obviously do not receive job applications. */
+export function isRecruitmentCandidateEmail(email: string): boolean {
+  const [local, domain] = email.toLowerCase().split("@");
+  if (!local || !domain || !domain.includes(".")) return false;
+  return !NON_RECRUITMENT_LOCAL_PARTS.test(local);
+}
+
 export function looksLikeJobPost(text: string): boolean {
   const lower = text.toLowerCase();
   return HIRING_MARKERS.some((m) => lower.includes(m));

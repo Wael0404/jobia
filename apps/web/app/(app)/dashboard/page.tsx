@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { AgentModeSwitch } from "../../../components/AgentModeSwitch";
 import { CvUpload } from "../../../components/CvUpload";
+import { ManualApplyList } from "../../../components/ManualApplyList";
 import { ApplicationsTable } from "../../../components/ApplicationsTable";
 import { api } from "../../../lib/api";
 
@@ -14,6 +15,11 @@ export default function DashboardPage() {
   const toReview = useQuery({
     queryKey: ["applications", "pending_review"],
     queryFn: () => api.applications({ status: "pending_review", limit: 5 }),
+  });
+
+  const toApply = useQuery({
+    queryKey: ["applications", "user_to_apply"],
+    queryFn: () => api.applications({ status: "user_to_apply", limit: 10 }),
   });
 
   const t = report.data?.totals;
@@ -35,6 +41,10 @@ export default function DashboardPage() {
         <div className="card">
           <div className="muted">En attente de validation</div>
           <div className="stat">{t?.pending_review ?? 0}</div>
+        </div>
+        <div className="card">
+          <div className="muted">À postuler vous-même</div>
+          <div className="stat" style={{ color: t?.user_to_apply ? "#5b3fd6" : undefined }}>{t?.user_to_apply ?? 0}</div>
         </div>
         <div className="card">
           <div className="muted">Action requise</div>
@@ -63,6 +73,18 @@ export default function DashboardPage() {
               </li>
             ))}
           </ul>
+        </section>
+      )}
+
+      {toApply.data && toApply.data.items.length > 0 && (
+        <section className="card">
+          <h3>À postuler vous-même sur LinkedIn</h3>
+          <p className="muted" style={{ marginTop: 0 }}>
+            Aucun email RH n&apos;est publié pour ces offres « Easy Apply ». L&apos;agent a préparé votre lettre : ouvrez
+            l&apos;offre, postulez, puis cliquez « J&apos;ai postulé » pour que le suivi continue.
+          </p>
+          <ManualApplyList items={toApply.data.items} />
+          <Link href="/applications?status=user_to_apply">Tout voir →</Link>
         </section>
       )}
 

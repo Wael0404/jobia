@@ -15,6 +15,9 @@ import type {
 /**
  * LinkedIn connector.
  *
+ * Used for DISCOVERY only: the submit pipeline never calls `apply()` for
+ * Easy Apply offers (recruiter email or one-click by the user instead).
+ *
  * ⚠️  LinkedIn offers no public API to search or apply to jobs, and its User
  * Agreement (§8.2) forbids automated access. This connector drives the
  * user's OWN session in a real browser, at human pace, with strict daily

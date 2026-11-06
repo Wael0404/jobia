@@ -12,7 +12,7 @@ export interface TransitionInput {
   payload?: Record<string, unknown>;
   /** Idempotency key: the same external event (e.g. a Gmail message) is applied once. */
   dedupeKey?: string;
-  patch?: Partial<Pick<typeof applications.$inferInsert, "submittedAt" | "lastError" | "pendingQuestions" | "coverLetter" | "emailThreadId">>;
+  patch?: Partial<Pick<typeof applications.$inferInsert, "submittedAt" | "lastError" | "pendingQuestions" | "coverLetter" | "emailThreadId" | "appliedVia">>;
 }
 
 export type TransitionResult = { applied: true; from: ApplicationStatus } | { applied: false; reason: "not_allowed" | "duplicate" };

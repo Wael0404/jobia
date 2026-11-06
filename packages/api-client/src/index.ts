@@ -102,6 +102,7 @@ export class JobiaClient {
   application = (id: string) => this.request<ApplicationDetailDto>("GET", `/v1/applications/${id}`);
   approve = (id: string) => this.request<void>("POST", `/v1/applications/${id}/approve`);
   retry = (id: string) => this.request<void>("POST", `/v1/applications/${id}/retry`);
+  markApplied = (id: string) => this.request<void>("POST", `/v1/applications/${id}/mark-applied`);
   withdraw = (id: string) => this.request<void>("POST", `/v1/applications/${id}/withdraw`);
 
   reportSummary = () => this.request<ReportSummaryDto>("GET", "/v1/reports/summary");
@@ -170,6 +171,7 @@ export const STATUS_LABELS: Record<ApplicationDto["status"], string> = {
   offer: "Offre reçue",
   rejected: "Refusée",
   withdrawn: "Retirée",
+  user_to_apply: "À postuler vous-même",
   needs_user_action: "Action requise",
   failed: "Échec",
 };

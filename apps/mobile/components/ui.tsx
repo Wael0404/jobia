@@ -43,6 +43,7 @@ const BADGE: Partial<Record<ApplicationStatus, string>> = {
   interview: colors.success,
   offer: colors.success,
   needs_user_action: colors.warning,
+  user_to_apply: "#5b3fd6",
   pending_review: colors.warning,
   rejected: colors.danger,
   failed: colors.danger,

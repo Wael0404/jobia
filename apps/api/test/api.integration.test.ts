@@ -2,7 +2,7 @@
  * End-to-end HTTP tests against a real Postgres + Redis.
  * Run with: INTEGRATION=1 DATABASE_URL=… REDIS_URL=… pnpm --filter @jobia/api test
  */
-import { applications, cvs, jobOffers, refreshTokens, users } from "@jobia/db";
+import { applications, cvs, eq, jobOffers, refreshTokens, users } from "@jobia/db";
 import { generateOpaqueToken, hashToken } from "@jobia/security";
 import { randomBytes, randomUUID } from "node:crypto";
 import type { FastifyInstance } from "fastify";
@@ -68,7 +68,7 @@ describe.skipIf(!enabled)("API (integration)", () => {
 
   afterAll(async () => {
     if (!container) return;
-    await container.db.delete(users).where((await import("@jobia/db")).eq(users.id, userId));
+    await container.db.delete(users).where(eq(users.id, userId));
     await container.queues.submit.obliterate({ force: true });
     await app.close();
     await container.close();
@@ -122,6 +122,30 @@ describe.skipIf(!enabled)("API (integration)", () => {
   it("refuses an illegal transition (approve twice)", async () => {
     const res = await app.inject({ method: "POST", url: `/v1/applications/${applicationId}/approve`, headers: auth() });
     expect(res.statusCode).toBe(409);
+  });
+
+  it("lets the user confirm an Easy Apply application they sent themselves", async () => {
+    const [cv] = await container.db.select().from(cvs).where(eq(cvs.userId, userId));
+    const [offer] = await container.db
+      .insert(jobOffers)
+      .values({ source: "linkedin", externalId: randomUUID(), url: "https://www.linkedin.com/jobs/view/2/", title: "Dev", company: "Beta", applyChannel: "easy_apply" })
+      .returning();
+    const [manual] = await container.db
+      .insert(applications)
+      .values({ userId, jobOfferId: offer!.id, cvId: cv!.id, status: "user_to_apply", matchScore: 80, appliedVia: "easy_apply" })
+      .returning();
+
+    const listed = await app.inject({ method: "GET", url: "/v1/applications?status=user_to_apply", headers: auth() });
+    expect(listed.json().items.map((a: { id: string }) => a.id)).toEqual([manual!.id]);
+
+    const ok = await app.inject({ method: "POST", url: `/v1/applications/${manual!.id}/mark-applied`, headers: auth() });
+    expect(ok.statusCode).toBe(202);
+    const detail = await app.inject({ method: "GET", url: `/v1/applications/${manual!.id}`, headers: auth() });
+    expect(detail.json()).toMatchObject({ status: "submitted", appliedVia: "easy_apply" });
+    expect(detail.json().submittedAt).not.toBeNull();
+
+    const again = await app.inject({ method: "POST", url: `/v1/applications/${manual!.id}/mark-applied`, headers: auth() });
+    expect(again.statusCode).toBe(409);
   });
 
   it("serves the report summary", async () => {
