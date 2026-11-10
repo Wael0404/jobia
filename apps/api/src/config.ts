@@ -29,6 +29,8 @@ const EnvSchema = z.object({
 
   VAULT_MASTER_KEY: z.string().min(40),
   FEATURE_LINKEDIN_AUTOMATION: z.stringbool().default(false),
+  /** Enables POST /v1/auth/demo (sign in as the seeded demo user without Google). Never in production. */
+  DEMO_MODE: z.stringbool().default(false),
 });
 
 export type Config = z.infer<typeof EnvSchema>;
@@ -38,6 +40,9 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
   if (!parsed.success) {
     const issues = parsed.error.issues.map((i) => `  - ${i.path.join(".")}: ${i.message}`).join("\n");
     throw new Error(`Invalid environment configuration:\n${issues}`);
+  }
+  if (parsed.data.DEMO_MODE && parsed.data.NODE_ENV === "production") {
+    throw new Error("DEMO_MODE must not be enabled in production");
   }
   return parsed.data;
 }

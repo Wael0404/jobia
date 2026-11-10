@@ -7,6 +7,7 @@ import type { Config } from "../../config";
 import { BadRequest, Unauthorized } from "../../http/errors";
 import type { GoogleOAuth } from "./google-oauth";
 
+export const DEMO_USER_EMAIL = "demo@jobia.tn";
 const STATE_TTL_S = 600;
 const LOGIN_CODE_TTL_S = 60;
 
@@ -95,6 +96,13 @@ export class AuthService {
     const userId = await this.redis.getdel(`oauth:code:${code}`);
     if (!userId) throw Unauthorized("Invalid or expired login code");
     return this.issue(userId, randomUUID(), sign);
+  }
+
+  /** Demo mode only (route registered when DEMO_MODE=true): signs in as the seeded demo user. */
+  async demoLogin(sign: SignAccessToken): Promise<AuthTokens> {
+    const [demo] = await this.db.select({ id: users.id }).from(users).where(eq(users.email, DEMO_USER_EMAIL)).limit(1);
+    if (!demo) throw BadRequest("Demo data not seeded (run: pnpm --filter @jobia/api seed:demo)");
+    return this.issue(demo.id, randomUUID(), sign);
   }
 
   async refresh(refreshToken: string, sign: SignAccessToken): Promise<AuthTokens> {

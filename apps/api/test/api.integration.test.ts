@@ -76,6 +76,11 @@ describe.skipIf(!enabled)("API (integration)", () => {
 
   const auth = () => ({ authorization: `Bearer ${token}` });
 
+  it("does not expose the demo login unless DEMO_MODE is enabled", async () => {
+    const res = await app.inject({ method: "POST", url: "/v1/auth/demo" });
+    expect(res.statusCode).toBe(404);
+  });
+
   it("rejects unauthenticated requests", async () => {
     const res = await app.inject({ method: "GET", url: "/v1/me" });
     expect(res.statusCode).toBe(401);

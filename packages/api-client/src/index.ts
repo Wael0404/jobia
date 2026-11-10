@@ -60,6 +60,12 @@ export class JobiaClient {
     await this.tokens.set(tokens);
   }
 
+  /** Only available when the API runs with DEMO_MODE=true. */
+  async demoLogin(): Promise<void> {
+    const tokens = await this.request<AuthTokens>("POST", "/v1/auth/demo", undefined, false);
+    await this.tokens.set(tokens);
+  }
+
   async signOut(): Promise<void> {
     const current = await this.tokens.get();
     if (current) await this.request("POST", "/v1/auth/logout", { refreshToken: current.refreshToken }, false).catch(() => {});

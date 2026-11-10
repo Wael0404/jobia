@@ -61,6 +61,13 @@ pnpm dev                            # api :4000, web :3000, workers
 pnpm --filter @jobia/mobile start   # application mobile (Expo)
 ```
 
+**Démo sans clé Google** (local uniquement, refusé en production) :
+
+```bash
+DATABASE_URL=postgres://jobia:jobia@localhost:5432/jobia pnpm --filter @jobia/api seed:demo   # compte + offres d'exemple
+# API avec DEMO_MODE=true, web avec NEXT_PUBLIC_DEMO_MODE=true → bouton « Essayer la démo »
+```
+
 Google Cloud Console → identifiants OAuth « Application Web » avec l'URI de redirection
 `http://localhost:4000/v1/auth/google/callback`, et l'API Gmail activée.
 

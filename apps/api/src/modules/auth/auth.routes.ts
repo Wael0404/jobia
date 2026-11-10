@@ -6,7 +6,7 @@ import { parse } from "../../http/errors";
 
 const CallbackQuerySchema = z.object({ code: z.string(), state: z.string() });
 
-export async function authRoutes(app: FastifyInstance, { services }: Container): Promise<void> {
+export async function authRoutes(app: FastifyInstance, { services, config }: Container): Promise<void> {
   const sign = (claims: { sub: string; email: string }) => app.jwt.sign(claims);
   const strict = { config: { rateLimit: { max: 20, timeWindow: "1 minute" } } };
 
@@ -29,6 +29,10 @@ export async function authRoutes(app: FastifyInstance, { services }: Container):
     const { refreshToken } = parse(RefreshRequestSchema, request.body);
     return services.auth.refresh(refreshToken, sign);
   });
+
+  if (config.DEMO_MODE) {
+    app.post("/auth/demo", strict, () => services.auth.demoLogin(sign));
+  }
 
   app.post("/auth/logout", async (request, reply) => {
     const { refreshToken } = parse(RefreshRequestSchema, request.body);

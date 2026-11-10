@@ -4,6 +4,14 @@ const config: NextConfig = {
   output: "standalone",
   transpilePackages: ["@jobia/api-client", "@jobia/shared"],
   poweredByHeader: false,
+  /**
+   * Optional same-origin API: with API_INTERNAL_URL set (and NEXT_PUBLIC_API_URL=""), the browser calls
+   * /v1/* on the web origin and Next.js forwards to the API. Useful behind a single public port.
+   */
+  async rewrites() {
+    const api = process.env.API_INTERNAL_URL;
+    return api ? [{ source: "/v1/:path*", destination: `${api}/v1/:path*` }] : [];
+  },
   async headers() {
     return [
       {
